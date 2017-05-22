@@ -18,10 +18,13 @@ $IPT -X
 $IPT -F -t nat
 $IPT -F -t mangle
 $IPT -F -t filter
+#$IPS -F blacklist
+#$IPS -X blacklist
 $IPS -F FORW 
 $IPS -X FORW
 $IPS -F DISCON
 $IPS -X DISCON
+#$IPS -N blacklist iphash
 $IPS -N FORW iphash
 $IPS -N DISCON iphash 
 # Стандартные действия
@@ -46,6 +49,7 @@ $IPT -I INPUT -m conntrack --ctstate NEW,INVALID -p tcp --tcp-flags SYN,ACK SYN,
 ######################## FORWARD ##############################
 ###############################################################
 $IPT -t filter -A FORWARD -i lo -j ACCEPT
+#$IPT -t filter -A FORWARD -m set --match-set blacklist dst -j DROP
 $IPT -t filter -A FORWARD -m state --state INVALID -j DROP
 $IPT -t filter -A FORWARD -m set --match-set FORW src,dst -j ACCEPT
 $IPT -t filter -A FORWARD -m set --match-set FORW dst,src -j ACCEPT
@@ -73,6 +77,8 @@ $IPT -X
 $IPT -F -t nat
 $IPT -F -t mangle
 $IPT -F -t filter
+#$IPS -F blacklist
+#$IPS -X blacklist
 $IPS -F FORW 
 $IPS -X FORW
 $IPS -F DISCON
