@@ -116,6 +116,9 @@ sed -i "s/\/var\/log\/messages/\/var\/log\/dhcpd.log/g" ./config/alter.ini
 sed -i "s/\/usr\/local\/sbin\/arping/\/usr\/sbin\/arping/g" ./config/alter.ini
 sed -i "s/rl0/${LAN_IFACE}/g" ./config/alter.ini
 sed -i "s/\/usr\/local\/bin\/snmpwalk/\/usr\/bin\/snmpwalk/g" ./config/alter.ini
+sed -i "s/\/usr\/local\/bin\/snmpset/\/usr\/bin\/snmpset/g" ./config/alter.ini
+sed -i "s/\/usr\/local\/bin\/mysqldump/\/usr\/bin\/mysqldump/g" ./config/alter.ini
+sed -i "s/\/usr\/local\/bin\/mysql/\/usr\/bin\/mysql/g" ./config/alter.ini
 sed -i "s/\/usr\/local\/bin\/nmap/\/usr\/bin\/nmap/g" ./config/alter.ini
 
 #setting up dhcpd
