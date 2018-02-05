@@ -1,0 +1,29 @@
+ceph-disk activate /dev/sdc1
+got monmap epoch 11
+2018-02-05 20:44:53.497674 7f435a891e00 -1 bluestore(/var/lib/ceph/tmp/mnt.Rdibg9/block) _check_or_set_bdev_label bdev /var/lib/ceph/tmp/mnt.Rdibg9/block fsid 5f765329-fd48-4500-867c-d3201d046d98 does not match our fsid e04d6179-1e73-49cd-a594-2bece06fe126
+2018-02-05 20:44:53.776493 7f435a891e00 -1 bluestore(/var/lib/ceph/tmp/mnt.Rdibg9) mkfs fsck found fatal error: (5) Input/output error
+2018-02-05 20:44:53.776511 7f435a891e00 -1 OSD::mkfs: ObjectStore::mkfs failed with error (5) Input/output error
+2018-02-05 20:44:53.776579 7f435a891e00 -1  ** ERROR: error creating empty object store in /var/lib/ceph/tmp/mnt.Rdibg9: (5) Input/output error
+mount_activate: Failed to activate
+Traceback (most recent call last):
+  File "/usr/sbin/ceph-disk", line 11, in <module>
+    load_entry_point('ceph-disk==1.0.0', 'console_scripts', 'ceph-disk')()
+  File "/usr/lib/python2.7/dist-packages/ceph_disk/main.py", line 5709, in run
+    main(sys.argv[1:])
+  File "/usr/lib/python2.7/dist-packages/ceph_disk/main.py", line 5662, in main
+    main_catch(args.func, args)
+  File "/usr/lib/python2.7/dist-packages/ceph_disk/main.py", line 5687, in main_catch
+    func(args)
+  File "/usr/lib/python2.7/dist-packages/ceph_disk/main.py", line 3750, in main_activate
+    reactivate=args.reactivate,
+  File "/usr/lib/python2.7/dist-packages/ceph_disk/main.py", line 3513, in mount_activate
+    (osd_id, cluster) = activate(path, activate_key_template, init)
+  File "/usr/lib/python2.7/dist-packages/ceph_disk/main.py", line 3690, in activate
+    keyring=keyring,
+  File "/usr/lib/python2.7/dist-packages/ceph_disk/main.py", line 3142, in mkfs
+    '--setgroup', get_ceph_group(),
+  File "/usr/lib/python2.7/dist-packages/ceph_disk/main.py", line 559, in command_check_call
+    return subprocess.check_call(arguments)
+  File "/usr/lib/python2.7/subprocess.py", line 186, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/usr/bin/ceph-osd', '--cluster', 'ceph', '--mkfs', '-i', u'2', '--monmap', '/var/lib/ceph/tmp/mnt.Rdibg9/activate.monmap', '--osd-data', '/var/lib/ceph/tmp/mnt.Rdibg9', '--osd-uuid', u'e04d6179-1e73-49cd-a594-2bece06fe126', '--setuser', 'ceph', '--setgroup', 'ceph']' returned non-zero exit status 1
