@@ -38,10 +38,9 @@ echo bandwidthd bandwidthd/promisc boolean false | debconf-set-selections
 echo bandwidthd bandwidthd/subnet string ${LAN_NET}/${LAN_MASK} | debconf-set-selections
 
 #deps install
-apt-get -y install mysql-server-5.6 mysql-client-core-5.6 libmysqlclient18 libmysqlclient-dev apache2 expat libexpat1-dev php5 php5-cli php5-mysql php5-snmp libapache2-mod-php5 isc-dhcp-server build-essential bind9 softflowd arping snmp nmap ipset expat automake libtool graphviz memcached freeradius-mysql elinks php5-curl dialog php5-gd php5-xmlrpc php5-imap php5-json
-
+apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz memcached freeradius-mysql elinks php7.2-curl dialog php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json
 #apache php enabling 
-a2enmod php5
+a2enmod php7
 apachectl restart
 
 #add apache childs to sudoers
