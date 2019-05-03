@@ -50,13 +50,13 @@ cd /tmp/ubinstaller/
 #stargazer setup
 #mkdir stargazer
 #cd /root/stargazer
-wget http://ubilling.net.ua/stg/stg-2.409-rc5.tar.gz
-tar zxvf stg-2.409-rc5.tar.gz
-cd stg-2.409-rc5/projects/stargazer/
+wget http://ubilling.net.ua/stg/stg-2.409-rc2.tar.gz
+tar zxvf stg-2.409-rc2.tar.gz
+cd stg-2.409-rc2/projects/stargazer/
 ./build
 make install
 cd ../sgconf && ./build && make && make install
-cd ../sgconf_xml/ && ./build && make && make install
+cd ../sgconf_xml && ./build && make && make install
 
 #updating stargazer config
 cp -R /tmp/ubinstaller/config/stargazer.conf /etc/stargazer/
@@ -67,7 +67,7 @@ echo "ALL     0.0.0.0/0       DIR0" > /etc/stargazer/rules
 
 #starting stargazer first time
 stargazer
-mysql -u root -p${MYSQL_PASSWD} stg -e "SHOW TABLES"
+#mysql -u root -p${MYSQL_PASSWD} stg -e "SHOW TABLES"
 #updating admin password
 /usr/sbin/sgconf_xml -s localhost -p 5555 -a admin -w 123456 -r " <ChgAdmin Login=\"admin\" password=\"${STG_PASS}\" /> "
 killall stargazer
@@ -81,7 +81,7 @@ tar zxvf ${UBILLING_RELEASE_NAME}
 chmod -R 777 content/ config/ multinet/ exports/ remote_nas.conf
 #apply dump
 cat /var/www/billing/docs/test_dump.sql | mysql -u root -p${MYSQL_PASSWD} stg
-mysql -u root -p${MYSQL_PASSWD} stg -e "SHOW TABLES"
+#mysql -u root -p${MYSQL_PASSWD} stg -e "SHOW TABLES"
 #updating passwords
 perl -e "s/mylogin/root/g" -pi ./config/mysql.ini
 perl -e "s/newpassword/${MYSQL_PASSWD}/g" -pi ./config/mysql.ini
@@ -116,7 +116,7 @@ sed -i '2 i&~' /etc/rsyslog.d/50-default.conf
 sed -i '1 i/var/log/dhcpd.log' /etc/logrotate.d/rsyslog
 service rsyslog restart
 echo "INTERFACES=\"${LAN_IFACE}"\" > /etc/default/isc-dhcp-server
-sed -i "s/\/etc\/dhcp\/dhcpd.conf/\/var\/www\/billing\/multinet\/dhcpd.conf/g" /etc/init/isc-dhcp-server.conf
+sed -i "s/\/etc\/dhcp\/dhcpd.conf/\/var\/www\/billing\/multinet\/dhcpd.conf/g" /etc/init.d/isc-dhcp-server
 sed -i "s/\/usr\/local\/etc/\/var\/www\/billing/g"  /var/www/billing/config/dhcp/subnets.template
 cp -f /tmp/ubinstaller/config/usr.sbin.dhcpd /etc/apparmor.d/
 apparmor_parser -r /etc/apparmor.d/usr.sbin.dhcpd
