@@ -117,6 +117,7 @@ sed -i '1 i/var/log/dhcpd.log' /etc/logrotate.d/rsyslog
 service rsyslog restart
 echo "INTERFACES=\"${LAN_IFACE}"\" > /etc/default/isc-dhcp-server
 sed -i "s/\/etc\/dhcp\/dhcpd.conf/\/var\/www\/billing\/multinet\/dhcpd.conf/g" /etc/init.d/isc-dhcp-server
+sed -i "s/\/etc\/dhcp\/dhcpd.conf/\/var\/www\/billing\/multinet\/dhcpd.conf/g" /lib/systemd/system/isc-dhcp-server.service
 sed -i "s/\/usr\/local\/etc/\/var\/www\/billing/g"  /var/www/billing/config/dhcp/subnets.template
 cp -f /tmp/ubinstaller/config/usr.sbin.dhcpd /etc/apparmor.d/
 apparmor_parser -r /etc/apparmor.d/usr.sbin.dhcpd
@@ -155,8 +156,8 @@ echo "INTERFACE=\"${LAN_IFACE}\"" >  /etc/default/softflowd
 echo "OPTIONS=\"-n ${SERVER_IP}:42111\"" >> /etc/default/softflowd
 #make bandwithd works - deb packages has broken post install scripts
 #make htaccess works
-cp -f /tmp/ubinstaller/config/php.ini /etc/php5/cli/
-cp -f /tmp/ubinstaller/config/php.ini /etc/php5/apache2/
+cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.2/cli/
+cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.2/apache2/
 cp -f /tmp/ubinstaller/config/000-default.conf  /etc/apache2/sites-enabled/
 sed -i "s/AllowOverride\ None/AllowOverride\ All/g"   /etc/apache2/sites-enabled/000-default.conf
 apachectl restart
