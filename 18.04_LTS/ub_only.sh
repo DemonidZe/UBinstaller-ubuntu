@@ -48,11 +48,11 @@ cp -R ./* /tmp/ubinstaller/
 cd /tmp/ubinstaller/
 
 #stargazer setup
-mkdir stargazer
+#mkdir stargazer
 #cd /root/stargazer
-wget http://ubilling.net.ua/stg/stg-2.409-rc2.tar.gz
-tar zxvf stg-2.409-rc2.tar.gz
-cd stg-2.409-rc2/projects/stargazer/
+wget http://ubilling.net.ua/stg/stg-2.409-rc5.tar.gz
+tar zxvf stg-2.409-rc5.tar.gz
+cd stg-2.409-rc5/projects/stargazer/
 ./build
 make install
 cd ../sgconf && ./build && make && make install
