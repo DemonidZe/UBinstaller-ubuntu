@@ -2,7 +2,7 @@
 
 DIALOG="whiptail"
 
-$DIALOG --title "Ubilling installation" --yesno "This wizard helps you to install Stargazer and Ubilling of latest versions to CLEAN(!) Ubuntu 14.04LTS distribution" 10 40
+$DIALOG --title "Ubilling installation" --yesno "This wizard helps you to install Stargazer and Ubilling of latest versions to CLEAN(!) Ubuntu 18.04LTS distribution" 10 40
 AGREE=$?
 clear
 case $AGREE in
@@ -100,8 +100,6 @@ $DIALOG --title "Users LAN network CIDR"  --inputbox "Enter users network CIDR m
 clear
 $DIALOG --title "Ubilling server LAN IP"  --inputbox "Enter IP address of this server" 8 40 2> /tmp/ubip
 clear
-$DIALOG --title "External interface name"  --inputbox "Input external interface name for setup NAT (for example eth1)" 8 40 2> /tmp/ubextif
-clear
 $DIALOG --title "New stargazer admin password"  --inputbox "Enter new password for stargazer administrator" 8 40 2> /tmp/ubstgpass
 clear
 $DIALOG --title "Remote NAS encription key"  --inputbox "Enter password for rscriptd NAS servers" 8 40 2> /tmp/ubrsd
@@ -115,7 +113,6 @@ LAN_NETW=`cat /tmp/ubnetw`
 LAN_CIDR=`cat /tmp/ubcidr`
 STG_PASS=`cat /tmp/ubstgpass`
 RSD_PASS=`cat /tmp/ubrsd`
-EXT_IF=`cat /tmp/ubextif`
 SERVER_IP=`cat /tmp/ubip`
 
 # cleaning temp files
@@ -126,13 +123,12 @@ rm -fr /tmp/ubnetw
 rm -fr /tmp/ubcidr
 rm -fr /tmp/ubstgpass
 rm -fr /tmp/ubrsd
-rm -fr /tmp/ubextif
 
 
 #wget https://raw.github.com/nightflyza/ubuntustaller/master/batchsetup.sh
 # params:
 # batchsetup.sh MYSQL_PASSWD STG_PASS RSD_PASS LAN_IFACE LAN_NET LAN_MASK WAN_IFACE WAN_IP
-bash ./ub_only.sh ${MYSQL_PASSWD} ${STG_PASS} ${RSD_PASS}  ${LAN_IF} ${LAN_NETW} ${LAN_CIDR} ${SERVER_IP} ${EXT_IF} &>> /var/log/ubuntustaller.log &
+bash ./ub_only.sh ${MYSQL_PASSWD} ${STG_PASS} ${RSD_PASS}  ${LAN_IF} ${LAN_NETW} ${LAN_CIDR} ${SERVER_IP} &>> /var/log/ubuntustaller.log &
 
 
 {
