@@ -146,7 +146,7 @@ chmod a+x /etc/firewall.sh
 ########
 sed -i 's/$SHAPER/#$SHAPER/g;s/$BAND/#$BAND/g' /etc/init.d/ubilling
 sed -i "s/newpassword/${MYSQL_PASSWD}/g" /etc/stargazer/config.ini
-sed -i "s/EXTERNAL_IFACE/${WAN_IFACE}/g" /etc/stargazer/config.ini
+sed -i "s/EXTERNAL_IFACE/${LAN_IFACE}/g" /etc/stargazer/config.ini
 sed -i "s/INTERNAL_IFACE/${LAN_IFACE}/g" /etc/stargazer/config.ini
 ########
 sed -i "s/newpassword/${MYSQL_PASSWD}/g" /etc/stargazer/dnswitch.php
