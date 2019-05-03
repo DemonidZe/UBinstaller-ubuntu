@@ -1,11 +1,11 @@
 #!/bin/sh
 
-EXPECTED_ARGS=8
+EXPECTED_ARGS=7
 E_BADARGS=65
 
 if [ $# -ne $EXPECTED_ARGS ]
 then
-  echo "Usage: ubsetup.sh MYSQL_PASSWD STG_PASS RSD_PASS LAN_IFACE LAN_NET LAN_MASK SERVER_IP WAN_IFACE"
+  echo "Usage: ubsetup.sh MYSQL_PASSWD STG_PASS RSD_PASS LAN_IFACE LAN_NET LAN_MASK SERVER_IP"
   exit $E_BADARGS
 fi
 
@@ -19,7 +19,6 @@ LAN_IFACE=$4
 LAN_NET=$5
 LAN_MASK=$6
 SERVER_IP=$7
-WAN_IFACE=$8
 UBILLING_RELEASE_URL="http://ubilling.net.ua/"
 UBILLING_RELEASE_NAME="ub.tgz"
 
@@ -27,20 +26,13 @@ UBILLING_RELEASE_NAME="ub.tgz"
 
 
 #setting mysql passwords
-echo mysql-server-5.6 mysql-server/root_password password ${MYSQL_PASSWD} | debconf-set-selections
-echo mysql-server-5.6 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
-
-#setting bandwidhtd selections
-echo bandwidthd bandwidthd/outputcdf boolean true | debconf-set-selections
-echo bandwidthd bandwidthd/recovercdf boolean true | debconf-set-selections
-echo bandwidthd bandwidthd/dev select ${LAN_IFACE} | debconf-set-selections
-echo bandwidthd bandwidthd/promisc boolean false | debconf-set-selections
-echo bandwidthd bandwidthd/subnet string ${LAN_NET}/${LAN_MASK} | debconf-set-selections
+echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debconf-set-selections
+echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
 
 #deps install
 apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz memcached freeradius-mysql elinks php7.2-curl dialog php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json
 #apache php enabling 
-a2enmod php7
+a2enmod php7.2
 apachectl restart
 
 #add apache childs to sudoers
