@@ -1,0 +1,5 @@
+  /sys/devices/system/node/ r,
+  /sys/devices/system/node/node*/meminfo r,
+  /proc/*/status r,
+  capability dac_read_search,
+  
