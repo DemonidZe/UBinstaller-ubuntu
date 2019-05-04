@@ -121,6 +121,7 @@ sed -i "s/\/etc\/dhcp\/dhcpd.conf/\/var\/www\/billing\/multinet\/dhcpd.conf/g" /
 sed -i "s/\/usr\/local\/etc/\/var\/www\/billing/g"  /var/www/billing/config/dhcp/subnets.template
 cp -f /tmp/ubinstaller/config/usr.sbin.dhcpd /etc/apparmor.d/
 apparmor_parser -r /etc/apparmor.d/usr.sbin.dhcpd
+systemctl daemon-reload
 service isc-dhcp-server restart
 
 #extractiong presets
@@ -159,7 +160,6 @@ echo "OPTIONS=\"-n ${SERVER_IP}:42111\"" >> /etc/default/softflowd
 cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.2/cli/
 cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.2/apache2/
 cp -f /tmp/ubinstaller/config/000-default.conf  /etc/apache2/sites-enabled/
-sed -i "s/AllowOverride\ None/AllowOverride\ All/g"   /etc/apache2/sites-enabled/000-default.conf
 apachectl restart
 
 #installing auto update script
