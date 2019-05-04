@@ -1,0 +1,15 @@
+[Unit]
+Description=Stargazer demon
+After=network.target mysql.service
+Requires=mysql.service
+
+
+[Service]
+Type=forking
+PIDFile=/run/stargazer.pid
+ExecStart=/usr/sbin/stargazer
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
