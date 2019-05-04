@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 EXPECTED_ARGS=7
 E_BADARGS=65
@@ -30,11 +30,15 @@ echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debc
 echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
 
 #deps install
-apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz memcached freeradius-mysql elinks php7.2-curl dialog php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json
+apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz memcached freeradius-mysql elinks php7.2-curl dialog ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json
 #apache php enabling 
 a2enmod php7.2
 apachectl restart
-
+#patch conf mysql
+sed -i "/system resource/r /tmp/ubinstaller/config/mysql_apparm" /etc/apparmor.d/usr.sbin.mysqld
+apparmor_parser -r /etc/apparmor.d/usr.sbin.mysqld
+cp -R /tmp/ubinstaller/config/disable_mysql_strict_mode.cnf /etc/mysql/conf.d/
+service mysql restart
 #add apache childs to sudoers
 echo "User_Alias BILLING = www-data" >> /etc/sudoers
 echo "BILLING          ALL = NOPASSWD: ALL" >> /etc/sudoers
@@ -59,7 +63,7 @@ cd ../sgconf && ./build && make && make install
 cd ../sgconf_xml && ./build && make && make install
 
 #updating stargazer config
-cp -R /tmp/ubinstaller/config/stargazer.conf /etc/stargazer/
+cp -f /tmp/ubinstaller/config/stargazer.conf /etc/stargazer/
 perl -e "s/newpassword/${MYSQL_PASSWD}/g" -pi /etc/stargazer/stargazer.conf
 perl -e "s/secretpassword/${RSD_PASS}/g" -pi /etc/stargazer/stargazer.conf
 #updating rules file
@@ -119,7 +123,8 @@ echo "INTERFACES=\"${LAN_IFACE}"\" > /etc/default/isc-dhcp-server
 sed -i "s/\/etc\/dhcp\/dhcpd.conf/\/var\/www\/billing\/multinet\/dhcpd.conf/g" /etc/init.d/isc-dhcp-server
 sed -i "s/\/etc\/dhcp\/dhcpd.conf/\/var\/www\/billing\/multinet\/dhcpd.conf/g" /lib/systemd/system/isc-dhcp-server.service
 sed -i "s/\/usr\/local\/etc/\/var\/www\/billing/g"  /var/www/billing/config/dhcp/subnets.template
-cp -f /tmp/ubinstaller/config/usr.sbin.dhcpd /etc/apparmor.d/
+sed -i "/system resource/r /tmp/ubinstaller/config/mysql_apparm" /etc/apparmor.d/usr.sbin.mysqld
+sed  "/\/usr\/sbin\/dhcpd mr/r /tmp/ubinstaller/config/dhcpd_apparm" /etc/apparmor.d/usr.sbin.dhcpd
 apparmor_parser -r /etc/apparmor.d/usr.sbin.dhcpd
 systemctl daemon-reload
 service isc-dhcp-server restart
