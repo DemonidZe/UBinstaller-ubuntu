@@ -1,5 +1,5 @@
 # vim:syntax=apparmor
-# Last Modified: Fri Jun 3 13:54:26 2011
+# Last Modified: Mon Jan 25 11:06:45 2016
 # Author: Jamie Strandboge <jamie@canonical.com>
 
 #include <tunables/global>
@@ -9,6 +9,7 @@
   #include <abstractions/nameservice>
   #include <abstractions/ssl_keys>
 
+  capability chown,
   capability net_bind_service,
   capability net_raw,
   capability setgid,
@@ -26,11 +27,11 @@
 
   /etc/dhcp/ r,
   /etc/dhcp/** r,
-  #/etc/dhcpd{,6}.conf r,
-  /etc/dhcpd{,6}_ldap.conf r,
+  /etc/dhcpd{,6}.conf r,
   /var/www/billing/multinet/ r,
   /var/www/billing/multinet/** r,
   /var/www/billing/multinet/dhcpd{,6}.conf r,
+  /etc/dhcpd{,6}_ldap.conf r,
 
   /usr/sbin/dhcpd mr,
 
@@ -61,6 +62,12 @@
 
   # wicd
   /var/lib/wicd/* r,
+
+  # access to bind9 keys for dynamic update
+  # It's expected that users will generate one key per zone and have it
+  # stored in both /etc/bind9 (for bind to access) and /etc/dhcp/ddns-keys
+  # (for dhcpd to access).
+  /etc/dhcp/ddns-keys/** r,
 
   # allow packages to re-use dhcpd and provide their own specific directories
   #include <dhcpd.d>
