@@ -19,10 +19,10 @@ FETCH="/usr/bin/wget"
 PWD="/bin/pwd"
 
 #apache version macro
-#APVER_VAR="APVER_MACRO"
+APVER_VAR="APVER_MACRO"
 
 # path to your apache data
-APACHE_DATA_PATH="/var/www/"
+APACHE_DATA_PATH="/var/www/${APVER_VAR}/data/"
 
 # ubilling path
 UBILLING_PATH="./billing/"
@@ -163,6 +163,7 @@ rm -fr ./customs
 
 echo "=== Setting permissions ==="
 chmod -R 777 content/ config/ multinet/ exports/ remote_nas.conf
+chmod -R 777 userstats/config/
 
 case $DN_ONLINE_LINKING in 
 NO)
