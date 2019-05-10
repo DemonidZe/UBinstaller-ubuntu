@@ -18,8 +18,6 @@ FETCH="/usr/bin/wget"
 #pwd command
 PWD="/bin/pwd"
 
-#apache version macro
-APVER_VAR="APVER_MACRO"
 
 # path to your apache data
 APACHE_DATA_PATH="/var/www/${APVER_VAR}/data/"
