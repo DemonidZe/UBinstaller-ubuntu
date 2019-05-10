@@ -28,7 +28,8 @@ UBILLING_RELEASE_NAME="ub.tgz"
 #setting mysql passwords
 echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debconf-set-selections
 echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
-
+echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
+echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
 #deps install
 apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz memcached freeradius-mysql elinks php7.2-curl dialog ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json
 #apache php enabling 
@@ -71,6 +72,7 @@ echo "ALL     0.0.0.0/0       DIR0" > /etc/stargazer/rules
 
 #starting stargazer first time
 stargazer
+sleep 2
 #mysql -u root -p${MYSQL_PASSWD} stg -e "SHOW TABLES"
 #updating admin password
 /usr/sbin/sgconf_xml -s localhost -p 5555 -a admin -w 123456 -r " <ChgAdmin Login=\"admin\" password=\"${STG_PASS}\" /> "
@@ -123,7 +125,6 @@ echo "INTERFACES=\"${LAN_IFACE}"\" > /etc/default/isc-dhcp-server
 sed -i "s/\/etc\/dhcp\/dhcpd.conf/\/var\/www\/billing\/multinet\/dhcpd.conf/g" /etc/init.d/isc-dhcp-server
 sed -i "s/\/etc\/dhcp\/dhcpd.conf/\/var\/www\/billing\/multinet\/dhcpd.conf/g" /lib/systemd/system/isc-dhcp-server.service
 sed -i "s/\/usr\/local\/etc/\/var\/www\/billing/g"  /var/www/billing/config/dhcp/subnets.template
-sed -i "/system resource/r /tmp/ubinstaller/config/mysql_apparm" /etc/apparmor.d/usr.sbin.mysqld
 sed  "/\/usr\/sbin\/dhcpd mr/r /tmp/ubinstaller/config/dhcpd_apparm" /etc/apparmor.d/usr.sbin.dhcpd
 apparmor_parser -r /etc/apparmor.d/usr.sbin.dhcpd
 systemctl daemon-reload
@@ -137,11 +138,14 @@ ln -fs /var/www/billing/remote_nas.conf /etc/stargazer/remote_nas.conf
 #ugly hack for starting stargazer without NAS-es
 echo "127.0.0.1/32 127.0.0.1" > /etc/stargazer/remote_nas.conf
 
-#updating init.d
-cp -f /tmp/ubinstaller/config/ubilling /etc/init.d/ubilling
-chmod a+x /etc/init.d/ubilling
+#updating systemctl
+systemctl enable softflowd
+systemctl enable memcached
+systemctl enable mysql
+systemctl enable isc-dhcp-server
+systemctl enable billing
+cp -f /tmp/ubinstaller/config/billing.service /lib/systemd/system
 cp -f /tmp/ubinstaller/config/firewall_ub.sh /etc/firewall.sh
-chmod a+x /etc/firewall.sh
 ########
 sed -i 's/$SHAPER/#$SHAPER/g;s/$BAND/#$BAND/g' /etc/init.d/ubilling
 sed -i "s/newpassword/${MYSQL_PASSWD}/g" /etc/stargazer/config.ini
@@ -150,7 +154,6 @@ sed -i "s/INTERNAL_IFACE/${LAN_IFACE}/g" /etc/stargazer/config.ini
 ########
 sed -i "s/newpassword/${MYSQL_PASSWD}/g" /etc/stargazer/dnswitch.php
 
-update-rc.d ubilling defaults
 
 #
 #post install ugly hacks
