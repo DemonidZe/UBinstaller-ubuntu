@@ -116,6 +116,7 @@ sed -i "s/\/usr\/local\/bin\/mysql/\/usr\/bin\/mysql/g" ./config/alter.ini
 sed -i "s/\/usr\/local\/bin\/nmap/\/usr\/bin\/nmap/g" ./config/alter.ini
 
 #setting up dhcpd
+MASK=`ipcalc $LAN_NET $LAN_MASK | grep Netmask | awk {'print $2'}`
 ln -fs /var/www/billing/multinet/ /etc/dhcp/multinet
 sed -i '1 ilocal7.* /var/log/dhcpd.log' /etc/rsyslog.d/50-default.conf
 sed -i '2 i&~' /etc/rsyslog.d/50-default.conf
@@ -125,7 +126,8 @@ echo "INTERFACES=\"${LAN_IFACE}"\" > /etc/default/isc-dhcp-server
 sed -i "s/\/etc\/dhcp\/dhcpd.conf/\/var\/www\/billing\/multinet\/dhcpd.conf/g" /etc/init.d/isc-dhcp-server
 sed -i "s/\/etc\/dhcp\/dhcpd.conf/\/var\/www\/billing\/multinet\/dhcpd.conf/g" /lib/systemd/system/isc-dhcp-server.service
 sed -i "s/\/usr\/local\/etc/\/var\/www\/billing/g"  /var/www/billing/config/dhcp/subnets.template
-sed  "/\/usr\/sbin\/dhcpd mr/r /tmp/ubinstaller/config/dhcpd_apparm" /etc/apparmor.d/usr.sbin.dhcpd
+sed -i "/shared-network/a subnet ${LAN_NET} netmask ${MASK} {}"  /var/www/billing/config/dhcp/global.template
+sed -i "/\/usr\/sbin\/dhcpd mr/r /tmp/ubinstaller/config/dhcpd_apparm" /etc/apparmor.d/usr.sbin.dhcpd
 apparmor_parser -r /etc/apparmor.d/usr.sbin.dhcpd
 systemctl daemon-reload
 service isc-dhcp-server restart
