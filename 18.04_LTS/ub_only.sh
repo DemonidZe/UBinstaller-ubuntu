@@ -28,18 +28,12 @@ UBILLING_RELEASE_NAME="ub.tgz"
 #setting mysql passwords
 echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debconf-set-selections
 echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
-echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
-echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
 #deps install
 apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz memcached freeradius-mysql elinks php7.2-curl dialog ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json
 #apache php enabling 
 a2enmod php7.2
 apachectl restart
-#patch conf mysql
-sed -i "/system resource/r /tmp/ubinstaller/config/mysql_apparm" /etc/apparmor.d/usr.sbin.mysqld
-apparmor_parser -r /etc/apparmor.d/usr.sbin.mysqld
-cp -R /tmp/ubinstaller/config/disable_mysql_strict_mode.cnf /etc/mysql/conf.d/
-service mysql restart
+
 #add apache childs to sudoers
 echo "User_Alias BILLING = www-data" >> /etc/sudoers
 echo "BILLING          ALL = NOPASSWD: ALL" >> /etc/sudoers
@@ -52,9 +46,13 @@ mkdir /tmp/ubinstaller/
 cp -R ./* /tmp/ubinstaller/
 cd /tmp/ubinstaller/
 
+#patch conf mysql
+sed -i "/system resource/r /tmp/ubinstaller/config/mysql_apparm" /etc/apparmor.d/usr.sbin.mysqld
+apparmor_parser -r /etc/apparmor.d/usr.sbin.mysqld
+cp -R /tmp/ubinstaller/config/disable_mysql_strict_mode.cnf /etc/mysql/conf.d/
+service mysql restart
+
 #stargazer setup
-#mkdir stargazer
-#cd /root/stargazer
 wget http://ubilling.net.ua/stg/stg-2.409-rc2.tar.gz
 tar zxvf stg-2.409-rc2.tar.gz
 cd stg-2.409-rc2/projects/stargazer/
@@ -129,8 +127,6 @@ sed -i "s/\/usr\/local\/etc/\/var\/www\/billing/g"  /var/www/billing/config/dhcp
 sed -i "/shared-network/a subnet ${LAN_NET} netmask ${MASK} {}"  /var/www/billing/config/dhcp/global.template
 sed -i "/\/usr\/sbin\/dhcpd mr/r /tmp/ubinstaller/config/dhcpd_apparm" /etc/apparmor.d/usr.sbin.dhcpd
 apparmor_parser -r /etc/apparmor.d/usr.sbin.dhcpd
-systemctl daemon-reload
-service isc-dhcp-server restart
 
 #extractiong presets
 cp -fr /tmp/ubinstaller/config/stargazer/* /etc/stargazer/
@@ -140,20 +136,14 @@ ln -fs /var/www/billing/remote_nas.conf /etc/stargazer/remote_nas.conf
 #ugly hack for starting stargazer without NAS-es
 echo "127.0.0.1/32 127.0.0.1" > /etc/stargazer/remote_nas.conf
 
-#updating systemctl
-systemctl enable softflowd
-systemctl enable memcached
-systemctl enable mysql
-systemctl enable isc-dhcp-server
-systemctl enable billing
 cp -f /tmp/ubinstaller/config/billing.service /lib/systemd/system
-cp -f /tmp/ubinstaller/config/firewall_ub.sh /etc/firewall.sh
+cp -f /tmp/ubinstaller/config/firewall.service /lib/systemd/system
+cp -f /tmp/ubinstaller/config/firewall_ub /etc/firewall.sh
+chmod a+x /etc/firewall.sh
 ########
-sed -i 's/$SHAPER/#$SHAPER/g;s/$BAND/#$BAND/g' /etc/init.d/ubilling
 sed -i "s/newpassword/${MYSQL_PASSWD}/g" /etc/stargazer/config.ini
 sed -i "s/EXTERNAL_IFACE/${LAN_IFACE}/g" /etc/stargazer/config.ini
 sed -i "s/INTERNAL_IFACE/${LAN_IFACE}/g" /etc/stargazer/config.ini
-########
 sed -i "s/newpassword/${MYSQL_PASSWD}/g" /etc/stargazer/dnswitch.php
 
 
@@ -165,7 +155,6 @@ chmod 777 /etc/stargazer/dn
 ln -fs  /usr/bin/php /usr/local/bin/php 
 echo "INTERFACE=\"${LAN_IFACE}\"" >  /etc/default/softflowd
 echo "OPTIONS=\"-n ${SERVER_IP}:42111\"" >> /etc/default/softflowd
-#make bandwithd works - deb packages has broken post install scripts
 #make htaccess works
 cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.2/cli/
 cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.2/apache2/
@@ -174,7 +163,16 @@ apachectl restart
 
 #installing auto update script
 cp -f /tmp/ubinstaller/config/autoubupdate.sh /var/www/
-
+cp -f /tmp/ubinstaller/config/ubapi /etc/ubapi.sh
+chmod a+x /etc/ubapi.sh
+#updating systemctl
+systemctl daemon-reload
+systemctl enable softflowd
+systemctl enable memcached
+systemctl enable mysql
+systemctl enable isc-dhcp-server
+systemctl enable billing
+systemctl enable firewall
 #clean stargazer sample data before start
 echo "TRUNCATE TABLE users" | mysql -u root  -p stg --password=${MYSQL_PASSWD}
 echo "TRUNCATE TABLE tariffs" | mysql -u root  -p stg --password=${MYSQL_PASSWD}
