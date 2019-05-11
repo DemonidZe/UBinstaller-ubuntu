@@ -1,5 +1,5 @@
 [Unit]
-Description=Firewall script
+Description=Firewall and shaper scripts
 Wants=network-online.target
 After=network-online.target
 
