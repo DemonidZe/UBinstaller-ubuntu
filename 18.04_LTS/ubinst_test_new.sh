@@ -227,7 +227,7 @@ perl -e "s/mylogin/root/g" -pi ./userstats/config/mysql.ini
 perl -e "s/newpassword/${MYSQL_PASSWD}/g" -pi ./userstats/config/mysql.ini
 
 #hotfix 2.408 admin permissions trouble
-#wget https://raw.github.com/nightflyza/ubuntustaller/master/admin_rights_hotfix.sql
+wget https://raw.github.com/nightflyza/ubuntustaller/master/admin_rights_hotfix.sql
 cat /tmp/ubinstaller/config/admin_rights_hotfix.sql | mysql -u root  -p stg --password=${MYSQL_PASSWD}
 perl -e "s/123456/${STG_PASS}/g" -pi ./config/billing.ini
 perl -e "s/123456/${STG_PASS}/g" -pi ./userstats/config/userstats.ini
