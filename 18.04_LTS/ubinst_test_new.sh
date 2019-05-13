@@ -68,7 +68,7 @@ case $NAS_KERNEL in
 echo $NAS_KERNEL > /tmp/nas
 #if setup NAS kernel with preconfigured firewall
 #configuring WAN interface
-ALL_IFACES1=`ls /sys/class/net | grep -v lo`
+ALL_IFACES=`ls /sys/class/net | grep -v lo`
 
 EXTIF_DIALOG_START="$DIALOG --menu \"Select WAN interface for NAT that interracts with Internet\" 15 65 6 \\"
 EXTIF_DIALOG="${EXTIF_DIALOG_START}"
@@ -88,7 +88,6 @@ EXT_IF=`cat /tmp/ubextif`
 ;;
 1)
 EXT_IF="none"
-echo $NAS_KERNEL > /tmp/nas
 ;;
 esac
 
@@ -117,29 +116,28 @@ WAN_IP=`cat /tmp/ubextip`
 #rm -fr /tmp/stgver
 
 #last chance to exit
-$DIALOG --title "Check settings"   --yesno "Are all of these settings correct? \n \n LAN interface: ${LAN_IFACE} \n LAN network: ${LAN_NETW}/${LAN_CIDR} \n WAN interface: ${EXT_IF} \n MySQL password: ${MYSQL_PASSWD} \n Stargazer password: ${STG_PASS} \n Rscripd password: ${RSD_PASS} \n System: ${ARCH} \n Mode: ${UBI_MODE}" 18 60
+$DIALOG --title "Check settings"   --yesno "Are all of these settings correct? \n \n LAN interface: ${LAN_IFACE} \n LAN network: ${LAN_NETW}/${LAN_CIDR} \n WAN interface: ${EXT_IF} \n MySQL password: ${MYSQL_PASSWD} \n Stargazer password: ${STG_PASS} \n Rscripd password: ${RSD_PASS} \n System: ${ARCH} 18 60
 AGREE=$?
 clear
-
-# preparing for installation
-mkdir /tmp/ubinstaller/
-cp -R ./* /tmp/ubinstaller/
-cd /tmp/ubinstaller/
 
 case $AGREE in
 0)
 echo "Everything is okay! Installation is starting."
+# preparing for installation
+mkdir /tmp/ubinstaller/
+cp -R ./* /tmp/ubinstaller/
+cd /tmp/ubinstaller/
 #case $ARCH in
 #1804)
 #ubuntu 18.04  x64 Release
 #APACHE_CONFIG_PRESET_NAME="httpd24f7.conf"
 #;;
-
 #1604)
 #ubuntu 16.04  x64 Release
 #APACHE_CONFIG_PRESET_NAME="httpd24f7.conf"
 #;;
 #esac
+
 #Selecting stargazer release to install
 case $STG_VER in
 409RC5)
@@ -165,10 +163,10 @@ echo "BILLING          ALL = NOPASSWD: ALL" >> /etc/sudoers
 modprobe ip_set
 echo "Patching mysql conf"
 #patch conf mysql
-#sed -i "/system resource/r /tmp/ubinstaller/config/mysql_apparm" /etc/apparmor.d/usr.sbin.mysqld
-#apparmor_parser -r /etc/apparmor.d/usr.sbin.mysqld
-#cp -R /tmp/ubinstaller/config/disable_mysql_strict_mode.cnf /etc/mysql/conf.d/
-#service mysql restart
+sed -i "/system resource/r /tmp/ubinstaller/config/mysql_apparm" /etc/apparmor.d/usr.sbin.mysqld
+apparmor_parser -r /etc/apparmor.d/usr.sbin.mysqld
+cp -R /tmp/ubinstaller/config/disable_mysql_strict_mode.cnf /etc/mysql/conf.d/
+service mysql restart
 echo "stargazer setup"
 #stargazer setup
 wget http://ubilling.net.ua/stg/${DL_STG_NAME}
@@ -267,7 +265,9 @@ sed -i "/shared-network/a subnet ${LAN_NETW} netmask ${MASK} {}"  /var/www/billi
 sed -i "/\/usr\/sbin\/dhcpd mr/r /tmp/ubinstaller/config/dhcpd_apparm" /etc/apparmor.d/usr.sbin.dhcpd
 apparmor_parser -r /etc/apparmor.d/usr.sbin.dhcpd
 #extractiong presets
+cp -fr /var/www/billing/docs/presets/MikroTik/* /etc/stargazer/
 cp -fr /tmp/ubinstaller/config/stargazer/* /etc/stargazer/
+cat /tmp/ubinstaller/config/config_ini.preconf >> /etc/stargazer/config.ini
 chmod a+x /etc/stargazer/*
 ln -fs /var/www/billing/remote_nas.conf /etc/stargazer/remote_nas.conf
 
@@ -278,6 +278,7 @@ cp -f /tmp/ubinstaller/config/billing.service /lib/systemd/system
 cp -f /tmp/ubinstaller/config/firewall.service /lib/systemd/system
 ########
 sed -i "s/newpassword/${MYSQL_PASSWD}/g" /etc/stargazer/config.ini
+sed -i "s/INTERNAL_IFACE/${LAN_IFACE}/g" /etc/stargazer/config.ini
 sed -i "s/INTERNAL_IFACE/${LAN_IFACE}/g" /etc/stargazer/config.ini
 sed -i "s/newpassword/${MYSQL_PASSWD}/g" /etc/stargazer/dnswitch.php
 
