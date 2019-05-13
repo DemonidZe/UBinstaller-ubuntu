@@ -113,7 +113,7 @@ sed -i "s/\/usr\/local\/bin\/mysql/\/usr\/bin\/mysql/g" ./config/alter.ini
 sed -i "s/\/usr\/local\/bin\/nmap/\/usr\/bin\/nmap/g" ./config/alter.ini
 
 #setting up dhcpd
-MASK=`ipcalc $LAN_NET $LAN_MASK | grep Netmask | awk {'print $2'}`
+MASK=`ipcalc $LAN_NETW $LAN_CIDR | grep Netmask | awk {'print $2'}`
 ln -fs /var/www/billing/multinet/ /etc/dhcp/multinet
 sed -i '1 ilocal7.* /var/log/dhcpd.log' /etc/rsyslog.d/50-default.conf
 sed -i '2 i&~' /etc/rsyslog.d/50-default.conf

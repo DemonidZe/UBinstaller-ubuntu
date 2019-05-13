@@ -36,8 +36,10 @@
                 if ( $this->connect() ) {
                     $this->firewall();
                     $this->queue();
+					$this->queue_tree();
                     $this->dhcp();
                     $this->arp();
+                    $this->ppp();
                 }
             } else $this->log->message(__CLASS__, "Cannot put data to MikroTik, no IP address!", 'error');
         }
@@ -67,18 +69,31 @@
                 $this->log->message(__CLASS__, 'Connection attempt #' . $ATTEMPT . ' to ' . $this->parameters['ip'] . ':' . $this->config['api_port'] . '...', "api");
                 if ( $this->socket = @fsockopen($this->parameters['ip'], $this->config['api_port'], $this->error_no, $this->error_str, $this->config['timeout']) ) {
                     socket_set_timeout($this->socket, $this->config['timeout']);
-                    $this->write('/login');
-                    $RESPONSE = $this->read(FALSE);
-                    if ( $RESPONSE[0] == '!done' ) {
-                        if ( preg_match_all('/[^=]+/i', $RESPONSE[1], $MATCHES) ) {
-                            if ( $MATCHES[0][0] == 'ret' && strlen($MATCHES[0][1]) == 32 ) {
-                                $this->write('/login', FALSE);
-                                $this->write('=name=' . $this->options['username'], FALSE);
-                                $this->write('=response=00' . md5(chr(0) . $this->options['password'] . pack('H*', $MATCHES[0][1])));
-                                $RESPONSE = $this->read(FALSE);
-                                if ( $RESPONSE[0] == '!done' ) {
-                                    $this->connected = TRUE;
-                                    break;
+
+                    if ( isset($this->options['use_new_conn_mode']) && $this->options['use_new_conn_mode'] ) {
+                        $this->write('/login', FALSE);
+                        $this->write('=name=' . $this->options['username'], FALSE);
+                        $this->write('=password=' . $this->options['password']);
+
+                        $RESPONSE = $this->read(FALSE);
+                        if ($RESPONSE[0] == '!done') {
+                            $this->connected = TRUE;
+                            break;
+                        }
+                    } else {
+                        $this->write('/login');
+                        $RESPONSE = $this->read(FALSE);
+                        if ( $RESPONSE[0] == '!done' ) {
+                            if ( preg_match_all('/[^=]+/i', $RESPONSE[1], $MATCHES) ) {
+                                if ( $MATCHES[0][0] == 'ret' && strlen($MATCHES[0][1]) == 32 ) {
+                                    $this->write('/login', FALSE);
+                                    $this->write('=name=' . $this->options['username'], FALSE);
+                                    $this->write('=response=00' . md5(chr(0) . $this->options['password'] . pack('H*', $MATCHES[0][1])));
+                                    $RESPONSE = $this->read(FALSE);
+                                    if ( $RESPONSE[0] == '!done' ) {
+                                        $this->connected = TRUE;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -234,8 +249,15 @@
                     case 'OnConnect':
                     case 'OnDisconnect':
                         // Load template:
-                        $template = parse_ini_file(NASPATH . 'tpls/firewall.ini');
-                        $template['disabled'] = ( ENVIRONMENT != 'OnConnect' ) ? 'yes' : 'no';
+                        if ( $this->config['use2addrlists'] ) {
+                            $firewall_ini_path = ( ENVIRONMENT == 'OnConnect' ) ? 'firewall.ini' : 'firewall_off.ini';
+                            $template = parse_ini_file(NASPATH . 'tpls/' . $firewall_ini_path);
+                            $template['disabled'] = 'no';
+                        } else {
+                            $template = parse_ini_file(NASPATH . 'tpls/firewall.ini');
+                            $template['disabled'] = ( ENVIRONMENT != 'OnConnect' ) ? 'yes' : 'no';
+                        }
+
                     case 'OnChange':
                     case 'OnUserDel':
                     // Find entry on NAS:
@@ -313,6 +335,9 @@
                         $rate = $this->database->get_user_rate();
                         $template['limit-at']  = $rate['tx'] . $this->config['rate_val'] . '/' . $rate['rx'] . $this->config['rate_val'];
                         $template['max-limit'] = $rate['tx'] . $this->config['rate_val'] . '/' . $rate['rx'] . $this->config['rate_val'];
+                        $template['burst-limit'] = $rate['bt_tx'] . $this->config['rate_val'] . '/' . $rate['bt_rx'] . $this->config['rate_val'];
+                        $template['burst-time'] = $rate['bt_tx_t'] . '/' . $rate['bt_rx_t'];
+                        $template['burst-threshold'] =  $rate['tx']*0.8 . $this->config['rate_val'] . '/' . $rate['rx']*0.8 . $this->config['rate_val'];
                         if ($this->options['version'] == 4 || $this->options['version'] == 5) {
                             $template['interface'] = $this->options['users_interface'];
                         }
@@ -342,6 +367,44 @@
                 $this->logReply($reply, __FUNCTION__);
             } else $this->log->message(__CLASS__, "MikroTik queue managing isn't enabled", 'debug');
         }
+		
+		private function queue_tree() {
+			if ( !empty($this->options['manage_queue_tree']) ) {
+                $reply    = null;
+                $template = null;
+                switch ( ENVIRONMENT ) {
+                    case 'OnConnect':
+                    case 'OnDisconnect':
+                        // Load template:
+                        $template            = parse_ini_file( NASPATH . 'tpls/queue_tree.ini' );
+                        $template['list']    = $this->database->get_user_tariff();
+						$template['comment'] = LOGIN . ':QT';
+                    case 'OnChange':
+                    case 'OnUserDel':
+                        // Find entry on NAS:
+                        $entries = $this->command('/ip/firewall/address-list/print', array(
+                            '.proplist' => '.id',
+                            '?comment'  => LOGIN . ':QT'
+                        ));
+                        // a. If entry is present:
+                        if ( !empty($entries) ) {
+                            foreach ($entries as $entry) {
+                                // Update entry:
+                                $template['.id'] = $entry['.id'];
+                                $action = ( ENVIRONMENT != 'OnChange' && ENVIRONMENT != 'OnUserDel') ? 'set' : 'remove';
+                                $reply = $this->command('/ip/firewall/address-list/' . $action, $template);
+                            }
+                        // b. If entry is absent:
+                        } else {
+                            if ( in_array( ENVIRONMENT, array('OnConnect', 'OnDisconnect') ) ) {
+                                $reply = $this->command('/ip/firewall/address-list/add', $template);
+                            } else $this->log->message(__CLASS__, __FUNCTION__ . ": can't remove entry, it's already absent!", 'error');
+                        }
+                        break;
+                }
+                $this->logReply($reply, __FUNCTION__);
+            } else $this->log->message(__CLASS__, "MikroTik QT is not enabled", 'debug');
+		}
 
         private function dhcp() {
             if ( !empty($this->options['manage_dhcp']) ) {
@@ -388,6 +451,53 @@
                     } else $this->log->message(__CLASS__, "No configurated DHCP-server found for this network!", 'error');
                 } else $this->log->message(__CLASS__, "There is no `user_interface` was not defined in database!", 'error');
             } else $this->log->message(__CLASS__, "MikroTik DHCP-leases managing is not enabled", 'debug');
+        }
+        
+        private function ppp() {
+            if ( !empty($this->options['manage_ppp']) ) {
+                if ( !empty($this->options['users_interface']) ) {
+                    $reply = NULL;
+                    $template = NULL;
+                    // Check custom profile exists&
+                    $profile = $this->command('/ppp/profile/print', array(
+                        '.proplist' => 'name',
+                        '?name' => $this->options['users_interface']
+                    ));
+                    switch ( ENVIRONMENT ) {
+                        case 'OnConnect':
+                        case 'OnDisconnect':
+                            // Load template:
+                            $template = parse_ini_file(NASPATH . 'tpls/ppp.ini');
+                            $template['password']  = $this->database->get_user_password();
+                            $template['profile']   = !empty( $profile ) ? $profile[0]['name'] : $template['profile'];
+                            $template['caller-id'] = ( isset( $template['caller-id'] ) ) ? strtoupper($this->database->get_user_mac()) : null;
+                            $template['disabled']  = ( isset( $template['disabled'] ) && ENVIRONMENT != 'OnConnect' ) ? 'yes' : 'no';
+                        case 'OnChange':
+                        case 'OnUserDel':
+                        // Find entry on NAS:
+                            $entries = $this->command('/ppp/secret/print', array(
+                                '.proplist' => '.id',
+                                '?name'  => LOGIN
+                            ));
+                            // a. If entry is present:
+                            if ( !empty($entries) ) {
+                                foreach ($entries as $entry) {
+                                    // Update entry:
+                                    $template['.id'] = $entry['.id'];
+                                    $action = ( ENVIRONMENT != 'OnChange' && ENVIRONMENT != 'OnUserDel') ? 'set' : 'remove';
+                                    $reply = $this->command('/ppp/secret/' . $action, $template);
+                                }
+                            // b. If entry is absent:
+                            } else {
+                                if ( ENVIRONMENT == 'OnConnect' || ENVIRONMENT == 'OnDisconnect') {
+                                    $reply = $this->command('/ppp/secret/add', $template);
+                               } else $this->log->message(__CLASS__, __FUNCTION__ . ": can't remove entry, it's already absent!", 'error');
+                            }
+                            break;
+                    }
+                    $this->logReply($reply, __FUNCTION__);
+		} else $this->log->message(__CLASS__, "There is no `user_interface` was not defined in database!", 'error');
+            } else $this->log->message(__CLASS__, "MikroTik PPP-secrets managing is not enabled", 'debug');
         }
     }
 ?>

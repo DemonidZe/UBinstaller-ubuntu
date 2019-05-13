@@ -30,7 +30,7 @@ $IPS -N DISCON iphash
 $IPT -P INPUT ACCEPT
 $IPT -P OUTPUT ACCEPT
 $IPT -P FORWARD DROP
-
+/etc/shaper.sh start
 
 #При применении этих правил будет следующий эффект: нельзя в течении одной минуты подключиться на порт SSH более 4х раз. Защита очень простая и эффективная,
 $IPT -t filter -A INPUT -p tcp --destination-port 22 -m state --state NEW -m recent --set --name SSH -j ACCEPT
@@ -86,6 +86,7 @@ $IPS -X DISCON
 $IPT -P INPUT ACCEPT
 $IPT -P OUTPUT ACCEPT
 $IPT -P FORWARD DROP
+/etc/shaper.sh stop
 ;;
 *)
 echo "use start or stop"
