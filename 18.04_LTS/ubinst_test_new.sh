@@ -64,8 +64,6 @@ NAS_KERNEL=$?
 clear
 case $NAS_KERNEL in
 0)
-#clear
-echo $NAS_KERNEL > /tmp/nas
 #if setup NAS kernel with preconfigured firewall
 #configuring WAN interface
 ALL_IFACES=`ls /sys/class/net | grep -v lo`
@@ -84,10 +82,10 @@ EXTIF_DIALOG="${EXTIF_DIALOG} 2> /tmp/ubextif"
 
 sh -c "${EXTIF_DIALOG}"
 clear 
-EXT_IF=`cat /tmp/ubextif`
+WAN_IFACE=`cat /tmp/ubextif`
 ;;
 1)
-EXT_IF="none"
+WAN_IFACE="none"
 ;;
 esac
 
@@ -100,7 +98,6 @@ STG_PASS=`cat /tmp/ubstgpass`
 RSD_PASS=`cat /tmp/ubrsd`
 ARCH=`cat /tmp/ubarch`
 STG_VER=`cat /tmp/stgver`
-WAN_IFACE=`cat /tmp/ubextif`
 WAN_IP=`cat /tmp/ubextip`
 
 # cleaning temp files
@@ -147,11 +144,11 @@ DL_STG_RELEASE="stg-2.409-rc5"
 esac
 $DIALOG --infobox "package installation in progress." 4 60
 #setting mysql passwords
-#echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debconf-set-selections
-#echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
+echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debconf-set-selections
+echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
 #deps install
-#apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz memcached freeradius-mysql elinks php7.2-curl dialog ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json
-#apache php enabling 
+apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz memcached freeradius-mysql elinks php7.2-curl dialog ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json
+apache php enabling 
 a2enmod php7.2
 apachectl restart
 
@@ -313,6 +310,7 @@ systemctl enable firewall
 echo "TRUNCATE TABLE users" | mysql -u root  -p stg --password=${MYSQL_PASSWD}
 echo "TRUNCATE TABLE tariffs" | mysql -u root  -p stg --password=${MYSQL_PASSWD}
 echo "All installed"
+################3
 case $NAS_KERNEL in
 0)
 cp -f /tmp/ubinstaller/config/firewall /etc/firewall.sh
@@ -332,10 +330,11 @@ sed -i "s/INTERNAL_IFACE/${LAN_IFACE}/g" /etc/shaper.sh
 1)
 cp -f /tmp/ubinstaller/config/firewall_ub /etc/firewall.sh
 chmod a+x /etc/firewall.sh
-echo "no NAS setup required";;
-esac
-$DIALOG --title "Installation complete" --msgbox "Now you can access your web-interface by address http://${SERVER_IP}/ with login and password: admin/demo. Please reboot your server to check correct startup of all services" 15 50
+echo "no NAS setup required"
 ;;
+esac
+
+$DIALOG --title "Installation complete" --msgbox "Now you can access your web-interface by address http://${SERVER_IP}/ with login and password: admin/demo. Please reboot your server to check correct startup of all services" 15 50
 1)
 echo "Installation has been aborted"
 exit
