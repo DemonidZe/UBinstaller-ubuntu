@@ -111,9 +111,10 @@ rm -fr /tmp/ubextif
 rm -fr /tmp/ubarch
 rm -fr /tmp/ubimode
 rm -fr /tmp/stgver
+rm -fr /tmp/ubip
 
 #last chance to exit
-$DIALOG --title "Check settings"   --yesno "Are all of these settings correct? \n \n LAN interface: ${LAN_IFACE} \n LAN network: ${LAN_NETW}/${LAN_CIDR} \n WAN interface: ${EXT_IF} \n MySQL password: ${MYSQL_PASSWD} \n Stargazer password: ${STG_PASS} \n Rscripd password: ${RSD_PASS} \n System: ${ARCH}" 18 60
+$DIALOG --title "Check settings"   --yesno "Are all of these settings correct? \n \n LAN interface: ${LAN_IFACE} \n LAN network: ${LAN_NETW}/${LAN_CIDR} \n WAN interface: ${EXT_IF} \n MySQL password: ${MYSQL_PASSWD} \n Stargazer password: ${STG_PASS} \n Rscripd password: ${RSD_PASS} \n System: ${ARCH} \n Stargazer: ${STG_VER}" 18 60
 AGREE=$?
 clear
 
