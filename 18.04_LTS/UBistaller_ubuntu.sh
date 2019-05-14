@@ -1,6 +1,6 @@
 #!/bin/bash
-
-DIALOG="whiptail"
+apt -y install dialog
+DIALOG="dialog"
 DIALOG2="dialog"
 UBILLING_RELEASE_URL="http://ubilling.net.ua/"
 UBILLING_RELEASE_NAME="ub.tgz"
@@ -145,7 +145,7 @@ $DIALOG --infobox "package installation in progress." 4 60
 echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debconf-set-selections
 echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
 #deps install
-apt -y install dialog mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2-mbstring php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.2-curl ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json
+apt -y install dialog mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2-mbstring php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.2-curl ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json >> /tmp/ubstg.log
 a2enmod php7.2
 apachectl restart
 
@@ -175,13 +175,13 @@ fi
 $DIALOG2 --infobox "Compiling Stargazer.." 4 60
 tar zxvf ${DL_STG_NAME} >> /tmp/ubstg.log
 cd ${DL_STG_RELEASE}/projects/stargazer/
-./build >> /tmp/ubstg.log 2>> /tmp/ubstg.log
+./build >> /tmp/ubstg.log
 $DIALOG2 --infobox "Compiling Stargazer..." 4 60
-make install >> /tmp/ubstg.log 2>> /tmp/ubstg.log
+make install >> /tmp/ubstg.log
 $DIALOG2 --infobox "Compiling Stargazer....." 4 60
-cd ../sgconf && ./build && make && make install >> /tmp/ubstg.log 2>> /tmp/ubstg.log
+cd ../sgconf && ./build && make && make install >> /tmp/ubstg.log
 $DIALOG2 --infobox "Compiling Stargazer......." 4 60
-cd ../sgconf_xml && ./build && make && make install >> /tmp/ubstg.log 2>> /tmp/ubstg.log
+cd ../sgconf_xml && ./build && make && make install >> /tmp/ubstg.log
 $DIALOG2 --infobox "Stargazer installed." 4 60
 
 #updating stargazer config
@@ -204,7 +204,7 @@ $DIALOG2 --infobox "Ubilling download, unpacking and installation is in progress
 cd /var/www/
 mkdir billing
 cd billing
-wget ${UBILLING_RELEASE_URL}${UBILLING_RELEASE_NAME}
+wget ${UBILLING_RELEASE_URL}${UBILLING_RELEASE_NAME} >> /tmp/ubstg.log
 if [ -f ${UBILLING_RELEASE_NAME} ];
 then
 echo "Ubilling download has been completed."
