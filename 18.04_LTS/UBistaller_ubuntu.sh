@@ -140,7 +140,7 @@ DL_STG_NAME="stg-2.409-rc5.tar.gz"
 DL_STG_RELEASE="stg-2.409-rc5"
 ;;
 esac
-$DIALOG2 --infobox "package installation in progress." 4 60
+$DIALOG --infobox "package installation in progress." 4 60
 #setting mysql passwords
 echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debconf-set-selections
 echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
