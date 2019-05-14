@@ -29,8 +29,8 @@ INTIF_DIALOG="${INTIF_DIALOG_START}"
 
 for EACH_IFACE in $ALL_IFACES
 do
-   LIIFACE_MAC=`ip addr show ${EACH_IFACE} | grep ether | awk {'print $2'}`
-   LIIFACE_IP=`ip addr show ${EACH_IFACE} | grep inet' '| awk {'print $2'}`
+   LIIFACE_MAC=`ip addr show ${EACH_IFACE} | grep ether | awk {'print $2'} | sed -n '1p'`
+   LIIFACE_IP=`ip addr show ${EACH_IFACE} | grep inet' '| awk {'print $2'} | sed -n '1p'`
    INTIF_DIALOG="${INTIF_DIALOG}${EACH_IFACE} \\ \"${LIIFACE_IP} - ${LIIFACE_MAC}\" "
 done
 INTIF_DIALOG="${INTIF_DIALOG} 2> /tmp/ubiface"
@@ -73,8 +73,8 @@ EXTIF_DIALOG="${EXTIF_DIALOG_START}"
 
 for EACH_IFACE in $ALL_IFACES
 do
-   LIIFACE_MAC=`ip addr show ${EACH_IFACE} | grep ether | awk {'print $2'}`
-   LIIFACE_IP=`ip addr show ${EACH_IFACE} | grep inet' '| awk {'print $2'}`
+   LIIFACE_MAC=`ip addr show ${EACH_IFACE} | grep ether | awk {'print $2'} | sed -n '1p'`
+   LIIFACE_IP=`ip addr show ${EACH_IFACE} | grep inet' '| awk {'print $2'} | sed -n '1p'`
    EXTIF_DIALOG="${EXTIF_DIALOG}${EACH_IFACE} \\ \"${LIIFACE_IP} - ${LIIFACE_MAC}\" "
 done
 
@@ -114,7 +114,7 @@ rm -fr /tmp/stgver
 rm -fr /tmp/ubip
 
 #last chance to exit
-$DIALOG --title "Check settings"   --yesno "Are all of these settings correct? \n \n LAN interface: ${LAN_IFACE} \n LAN network: ${LAN_NETW}/${LAN_CIDR} \n WAN interface: ${EXT_IF} \n MySQL password: ${MYSQL_PASSWD} \n Stargazer password: ${STG_PASS} \n Rscripd password: ${RSD_PASS} \n System: ${ARCH} \n Stargazer: ${STG_VER}" 18 60
+$DIALOG --title "Check settings"   --yesno "Are all of these settings correct? \n \n LAN interface: ${LAN_IFACE} \n LAN network: ${LAN_NETW}/${LAN_CIDR} \n WAN interface: ${WAN_IFACE} \n MySQL password: ${MYSQL_PASSWD} \n Stargazer password: ${STG_PASS} \n Rscripd password: ${RSD_PASS} \n System: ${ARCH} \n Stargazer: ${STG_VER}" 18 60
 AGREE=$?
 clear
 
