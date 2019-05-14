@@ -41,7 +41,7 @@ clear
 TMP_LAN_IFACE=`cat /tmp/ubiface`
 TMP_LAN_NETW=`ip route show | grep ${TMP_LAN_IFACE} | grep -v dhcp | grep -v via | grep src | awk {'print $1'} | cut -f 1 -d "/"`
 TMP_LAN_CIDR=`ip route show | grep ${TMP_LAN_IFACE} | grep -v dhcp | grep -v via | grep src | awk {'print $1'} | cut -f 2 -d "/"`
-TMP_LAN_IP=`ip addr show ${TMP_LAN_IFACE} | grep inet' '| awk {'print $2'} | cut -f 1 -d "/"`
+TMP_LAN_IP=`ip addr show ${TMP_LAN_IFACE} | grep inet' '| awk {'print $2'} | cut -f 1 -d "/" | sed -n '1p'`
 echo ${TMP_LAN_NETW} > /tmp/ubnetw
 echo ${TMP_LAN_CIDR} > /tmp/ubcidr
 echo ${TMP_LAN_IP} > /tmp/ubip
@@ -83,6 +83,7 @@ EXTIF_DIALOG="${EXTIF_DIALOG} 2> /tmp/ubextif"
 sh -c "${EXTIF_DIALOG}"
 clear 
 WAN_IFACE=`cat /tmp/ubextif`
+WAN_IP=`ip addr show ${WAN_IFACE} | grep inet' '| awk {'print $2'} | cut -f 1 -d "/" | sed -n '1p'`
 ;;
 1)
 WAN_IFACE="none"
@@ -98,7 +99,6 @@ STG_PASS=`cat /tmp/ubstgpass`
 RSD_PASS=`cat /tmp/ubrsd`
 ARCH=`cat /tmp/ubarch`
 STG_VER=`cat /tmp/stgver`
-WAN_IP=`cat /tmp/ubextip`
 
 # cleaning temp files
 rm -fr /tmp/ubiface
@@ -146,7 +146,7 @@ $DIALOG --infobox "package installation in progress." 4 60
 echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debconf-set-selections
 echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
 #deps install
-apt -y install dialog mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2-mbstring php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.2-curl ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json >> /tmp/ubstg.log
+apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2-mbstring php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.2-curl ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json >> /tmp/ubstg.log
 a2enmod php7.2
 apachectl restart
 

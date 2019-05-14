@@ -8,9 +8,6 @@ start)
 # удаляем все имеющиеся правила
 $IPT -F
 $IPT -X
-$IPT -F -t nat
-$IPT -F -t mangle
-$IPT -F -t filter
 # Стандартные действия
 $IPT -P INPUT ACCEPT
 $IPT -P OUTPUT ACCEPT
@@ -18,13 +15,13 @@ $IPT -P FORWARD DROP
 
 
 #При применении этих правил будет следующий эффект: нельзя в течении одной минуты подключиться на порт SSH более 4х раз. Защита очень простая и эффективная,
-$IPT -t filter -A INPUT -p tcp --destination-port 22 -m state --state NEW -m recent --set --name SSH -j ACCEPT
+$IPT -t filter -A INPUT -p tcp --destination-port 22 -m state --state NEW -m recent --set --name SSH
 $IPT -t filter -A INPUT -p tcp --destination-port 22 -m recent --update --seconds 60 --hitcount 4 --rttl --name SSH -j LOG --log-prefix "SSH_BRUTFORCE: "
 $IPT -t filter -A INPUT -p tcp --destination-port 22 -m recent --update --seconds 60 --hitcount 4 --rttl --name SSH -j DROP
 ####Module conf_sg brut
-$IPT -t filter -A INPUT -p tcp --destination-port 5555 -m state --state NEW -m recent --set --name SSH -j ACCEPT
-$IPT -t filter -A INPUT -p tcp --destination-port 5555 -m recent --update --seconds 60 --hitcount 3 --rttl --name SSH -j ULOG --ulog-prefix "SG_CONF_BRUTFORCE: "
-$IPT -t filter -A INPUT -p tcp --destination-port 5555 -m recent --update --seconds 60 --hitcount 3 --rttl --name SSH -j DROP
+$IPT -t filter -A INPUT -p tcp --destination-port 5555 -m state --state NEW -m recent --set --name SGCONF
+$IPT -t filter -A INPUT -p tcp --destination-port 5555 -m recent --update --seconds 60 --hitcount 3 --rttl --name SGCONF -j LOG --log-prefix "SG_CONF_BRUTFORCE: "
+$IPT -t filter -A INPUT -p tcp --destination-port 5555 -m recent --update --seconds 60 --hitcount 3 --rttl --name SGCONF -j DROP
 #####
 $IPT -t filter -A INPUT -m state --state INVALID -j DROP
 $IPT -t filter -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
