@@ -174,7 +174,7 @@ exit
 fi
 $DIALOG --infobox "Compiling Stargazer.." 4 60
 tar zxvf ${DL_STG_NAME} >> /tmp/ubstg.log
-cd ${DL_STG_NAME}/projects/stargazer/
+cd ${DL_STG_RELEASE}/projects/stargazer/
 ./build >> /tmp/ubstg.log 2>> /tmp/ubstg.log
 $DIALOG --infobox "Compiling Stargazer..." 4 60
 make install >> /tmp/ubstg.log 2>> /tmp/ubstg.log
