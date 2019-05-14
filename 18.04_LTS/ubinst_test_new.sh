@@ -148,7 +148,6 @@ echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debc
 echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
 #deps install
 apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz memcached freeradius-mysql elinks php7.2-curl dialog ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json
-apache php enabling 
 a2enmod php7.2
 apachectl restart
 
@@ -176,7 +175,7 @@ echo "=== Error: stargazer sources are not available. Installation is aborted. =
 exit
 fi
 $DIALOG --infobox "Compiling Stargazer.." 4 60
-tar zxvf ${DL_STG_NAME} 2>> /tmp/ubstg.log
+tar zxvf ${DL_STG_NAME} >> /tmp/ubstg.log
 cd ${DL_STG_NAME}/projects/stargazer/
 ./build >> /tmp/ubstg.log 2>> /tmp/ubstg.log
 $DIALOG --infobox "Compiling Stargazer..." 4 60
@@ -215,7 +214,7 @@ else
 echo "=== Error: Ubilling release is not available. Installation is aborted. ==="
 exit
 fi
-tar zxvf ${UBILLING_RELEASE_NAME} 2>> /tmp/ubweb.log
+tar zxvf ${UBILLING_RELEASE_NAME} >> /tmp/ubweb.log
 chmod -R 777 content/ config/ multinet/ exports/ remote_nas.conf
 #apply dump
 cat /var/www/billing/docs/test_dump.sql | mysql -u root -p${MYSQL_PASSWD} stg
