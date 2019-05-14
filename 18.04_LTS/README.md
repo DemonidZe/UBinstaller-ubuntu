@@ -4,5 +4,5 @@ Ubilling Ubuntu installation script
 2. apt-get update
 3. apt-get upgrade
 4. download UBinstaller-ubuntu/18.04_LTS/*
-5.chmod a+x UBistaller_ubuntu.sh
+5. chmod a+x UBistaller_ubuntu.sh
 6. ./UBistaller_ubuntu.sh
