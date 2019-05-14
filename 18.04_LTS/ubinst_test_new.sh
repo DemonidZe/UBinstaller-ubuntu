@@ -226,7 +226,6 @@ perl -e "s/mylogin/root/g" -pi ./userstats/config/mysql.ini
 perl -e "s/newpassword/${MYSQL_PASSWD}/g" -pi ./userstats/config/mysql.ini
 
 #hotfix 2.408 admin permissions trouble
-wget https://raw.github.com/nightflyza/ubuntustaller/master/admin_rights_hotfix.sql
 cat /tmp/ubinstaller/config/admin_rights_hotfix.sql | mysql -u root  -p stg --password=${MYSQL_PASSWD}
 perl -e "s/123456/${STG_PASS}/g" -pi ./config/billing.ini
 perl -e "s/123456/${STG_PASS}/g" -pi ./userstats/config/userstats.ini
@@ -274,8 +273,6 @@ cp -f /tmp/ubinstaller/config/billing.service /lib/systemd/system
 cp -f /tmp/ubinstaller/config/firewall.service /lib/systemd/system
 ########
 sed -i "s/newpassword/${MYSQL_PASSWD}/g" /etc/stargazer/config.ini
-sed -i "s/INTERNAL_IFACE/${LAN_IFACE}/g" /etc/stargazer/config.ini
-sed -i "s/INTERNAL_IFACE/${LAN_IFACE}/g" /etc/stargazer/config.ini
 sed -i "s/newpassword/${MYSQL_PASSWD}/g" /etc/stargazer/dnswitch.php
 
 
@@ -316,6 +313,7 @@ cp -f /tmp/ubinstaller/config/firewall /etc/firewall.sh
 chmod a+x /etc/firewall.sh
 cp -f /tmp/ubinstaller/config/shaper.sh /etc/shaper.sh
 chmod a+x /etc/shaper.sh
+sed -i "s/INTERNAL_IFACE/${LAN_IFACE}/g" /etc/stargazer/config.ini
 sed -i "s/EXTERNAL_IFACE/${WAN_IFACE}/g" /etc/stargazer/config.ini
 #update settings in firewall sample
 sed -i "s/EXTERNAL_IP/${WAN_IP}/g" /etc/firewall.sh
