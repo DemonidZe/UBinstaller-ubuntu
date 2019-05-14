@@ -145,7 +145,7 @@ $DIALOG --infobox "package installation in progress." 4 60
 echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debconf-set-selections
 echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
 #deps install
-apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz memcached freeradius-mysql elinks php7.2-curl dialog ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json
+apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.2-curl ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json
 a2enmod php7.2
 apachectl restart
 
