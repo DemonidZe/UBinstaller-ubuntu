@@ -1,0 +1,10 @@
+
+
+[local]
+rate_val = 'kbit'
+arpcmd = '/usr/sbin/arp'
+ipt = '/sbin/iptables'
+ips = '/sbin/ipset'
+tc = '/sbin/tc'
+ifdown = 'INTERNAL_IFACE'
+ifup = 'EXTERNAL_IFACE'
