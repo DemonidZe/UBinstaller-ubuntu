@@ -101,16 +101,16 @@ STG_VER=`cat /tmp/stgver`
 WAN_IP=`cat /tmp/ubextip`
 
 # cleaning temp files
-#rm -fr /tmp/ubiface
-#rm -fr /tmp/ubmypas
-#rm -fr /tmp/ubnetw
-#rm -fr /tmp/ubcidr
-#rm -fr /tmp/ubstgpass
-#rm -fr /tmp/ubrsd
-#rm -fr /tmp/ubextif
-#rm -fr /tmp/ubarch
-#rm -fr /tmp/ubimode
-#rm -fr /tmp/stgver
+rm -fr /tmp/ubiface
+rm -fr /tmp/ubmypas
+rm -fr /tmp/ubnetw
+rm -fr /tmp/ubcidr
+rm -fr /tmp/ubstgpass
+rm -fr /tmp/ubrsd
+rm -fr /tmp/ubextif
+rm -fr /tmp/ubarch
+rm -fr /tmp/ubimode
+rm -fr /tmp/stgver
 
 #last chance to exit
 $DIALOG --title "Check settings"   --yesno "Are all of these settings correct? \n \n LAN interface: ${LAN_IFACE} \n LAN network: ${LAN_NETW}/${LAN_CIDR} \n WAN interface: ${EXT_IF} \n MySQL password: ${MYSQL_PASSWD} \n Stargazer password: ${STG_PASS} \n Rscripd password: ${RSD_PASS} \n System: ${ARCH}" 18 60
@@ -127,11 +127,9 @@ cd /tmp/ubinstaller/
 #case $ARCH in
 #1804)
 #ubuntu 18.04  x64 Release
-#APACHE_CONFIG_PRESET_NAME="httpd24f7.conf"
 #;;
 #1604)
 #ubuntu 16.04  x64 Release
-#APACHE_CONFIG_PRESET_NAME="httpd24f7.conf"
 #;;
 #esac
 
