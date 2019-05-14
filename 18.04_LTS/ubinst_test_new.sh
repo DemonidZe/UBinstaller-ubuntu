@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DIALOG="whiptail"
-
+DIALOG2="dialog"
 UBILLING_RELEASE_URL="http://ubilling.net.ua/"
 UBILLING_RELEASE_NAME="ub.tgz"
 DL_STG_URL="http://ubilling.net.ua/stg/"
@@ -140,12 +140,12 @@ DL_STG_NAME="stg-2.409-rc5.tar.gz"
 DL_STG_RELEASE="stg-2.409-rc5"
 ;;
 esac
-$DIALOG --infobox "package installation in progress." 4 60
+$DIALOG2 --infobox "package installation in progress." 4 60
 #setting mysql passwords
 echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debconf-set-selections
 echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
 #deps install
-apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.2-curl ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json
+apt -y install dialog mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.2-curl ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json
 a2enmod php7.2
 apachectl restart
 
@@ -172,17 +172,17 @@ else
 echo "=== Error: stargazer sources are not available. Installation is aborted. ==="
 exit
 fi
-$DIALOG --infobox "Compiling Stargazer.." 4 60
+$DIALOG2 --infobox "Compiling Stargazer.." 4 60
 tar zxvf ${DL_STG_NAME} >> /tmp/ubstg.log
 cd ${DL_STG_RELEASE}/projects/stargazer/
 ./build >> /tmp/ubstg.log 2>> /tmp/ubstg.log
-$DIALOG --infobox "Compiling Stargazer..." 4 60
+$DIALOG2 --infobox "Compiling Stargazer..." 4 60
 make install >> /tmp/ubstg.log 2>> /tmp/ubstg.log
-$DIALOG --infobox "Compiling Stargazer....." 4 60
+$DIALOG2 --infobox "Compiling Stargazer....." 4 60
 cd ../sgconf && ./build && make && make install >> /tmp/ubstg.log 2>> /tmp/ubstg.log
-$DIALOG --infobox "Compiling Stargazer......." 4 60
+$DIALOG2 --infobox "Compiling Stargazer......." 4 60
 cd ../sgconf_xml && ./build && make && make install >> /tmp/ubstg.log 2>> /tmp/ubstg.log
-$DIALOG --infobox "Stargazer installed." 4 60
+$DIALOG2 --infobox "Stargazer installed." 4 60
 
 #updating stargazer config
 cp -f /tmp/ubinstaller/config/stargazer.conf /etc/stargazer/
@@ -198,7 +198,7 @@ sleep 2
 #updating admin password
 /usr/sbin/sgconf_xml -s localhost -p 5555 -a admin -w 123456 -r " <ChgAdmin Login=\"admin\" password=\"${STG_PASS}\" /> "
 killall stargazer
-$DIALOG --infobox "Ubilling download, unpacking and installation is in progress." 4 60
+$DIALOG2 --infobox "Ubilling download, unpacking and installation is in progress." 4 60
 
 #downloading and installing Ubilling
 cd /var/www/
@@ -293,7 +293,6 @@ chmod a+x /etc/ubapi.sh
 #updating systemctl
 systemctl daemon-reload
 systemctl enable softflowd
-systemctl enable memcached
 systemctl enable mysql
 systemctl enable isc-dhcp-server
 systemctl enable billing
@@ -327,7 +326,7 @@ echo "no NAS setup required"
 ;;
 esac
 
-$DIALOG --title "Installation complete" --msgbox "Now you can access your web-interface by address http://${SERVER_IP}/ with login and password: admin/demo. Please reboot your server to check correct startup of all services" 15 50
+$DIALOG2 --title "Installation complete" --msgbox "Now you can access your web-interface by address http://${SERVER_IP}/ with login and password: admin/demo. Please reboot your server to check correct startup of all services" 15 50
 ;;
 1)
 echo "Installation has been aborted"
