@@ -11,7 +11,7 @@ $DIALOG --title "Ubilling installation" --msgbox "This wizard helps you to insta
 clear
 $DIALOG --menu "Choose version" 16 50 8 \
            1804 "Ubuntu 18.04 amd64"\
-           1604 "Ubuntu 16.04 amd64 now not work!!"\
+           1604 "Ubuntu 16.04 amd64"\
         2> /tmp/ubarch
 clear
 #configuring stargazer release
@@ -125,14 +125,6 @@ echo "Everything is okay! Installation is starting."
 mkdir /tmp/ubinstaller/
 cp -R ./* /tmp/ubinstaller/
 cd /tmp/ubinstaller/
-#case $ARCH in
-#1804)
-#ubuntu 18.04  x64 Release
-#;;
-#1604)
-#ubuntu 16.04  x64 Release
-#;;
-#esac
 
 #Selecting stargazer release to install
 case $STG_VER in
@@ -146,9 +138,20 @@ $DIALOG --infobox "package installation in progress." 4 60
 echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debconf-set-selections
 echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
 #deps install
+case $ARCH in
+1804)
+#ubuntu 18.04  x64 Release
 add-apt-repository -y ppa:ondrej/php >> /tmp/ubstg.log
 apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php-redis php7.1-bcmath php7.1-xml php7.1-zip php7.1-soap php7.1-mbstring php7.1 php7.1-cli php7.1-mysql php7.1-snmp libapache2-mod-php7.1 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.1-curl ipcalc php7.1-gd php7.1-xmlrpc php7.1-imap php7.1-json >> /tmp/ubstg.log
 a2enmod php7.1
+;;
+1604)
+#ubuntu 16.04  x64 Release
+apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php-redis php7.0-bcmath php7.0-xml php7.0-zip php7.0-soap php7.0-mbstring php7.0 php7.0-cli php7.0-mysql php7.0-snmp libapache2-mod-php7.0 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.0-curl ipcalc php7.0-gd php7.0-xmlrpc php7.0-imap php7.0-json >> /tmp/ubstg.log
+a2enmod php7.0
+;;
+esac
+
 apachectl restart
 
 #add apache childs to sudoers
@@ -283,8 +286,16 @@ ln -fs  /usr/bin/php /usr/local/bin/php
 echo "INTERFACE=\"${LAN_IFACE}\"" >  /etc/default/softflowd
 echo "OPTIONS=\"-n ${SERVER_IP}:42111\"" >> /etc/default/softflowd
 #make htaccess works
+case $ARCH in
+1804)
 cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.1/cli/
 cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.1/apache2/
+;;
+1604)
+cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.0/cli/
+cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.0/apache2/
+;;
+esac
 cp -f /tmp/ubinstaller/config/000-default.conf  /etc/apache2/sites-enabled/
 apachectl restart
 
