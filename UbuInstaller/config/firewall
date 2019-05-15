@@ -28,9 +28,10 @@ $IPT -A INPUT -p tcp --destination-port 22 -m state --state NEW -m recent --set 
 $IPT -A INPUT -p tcp --destination-port 22 -m recent --update --seconds 60 --hitcount 4 --rttl --name SSH -j LOG --log-prefix "SSH_BRUTFORCE: "
 $IPT -A INPUT -p tcp --destination-port 22 -m recent --update --seconds 60 --hitcount 4 --rttl --name SSH -j DROP
 ####Module conf_sg brut
+$IPT -A INPUT -i lo -j ACCEPT
 $IPT -A INPUT -p tcp --destination-port 5555 -m state --state NEW -m recent --set --name SGCONF -j ACCEPT
-$IPT -A INPUT -p tcp --destination-port 5555 -m recent --update --seconds 60 --hitcount 3 --rttl --name SGCONF -j LOG --log-prefix "SG_CONF_BRUTFORCE: "
-$IPT -A INPUT -p tcp --destination-port 5555 -m recent --update --seconds 60 --hitcount 3 --rttl --name SGCONF -j DROP
+$IPT -A INPUT -p tcp --destination-port 5555 -m recent --update --seconds 60 --hitcount 5 --rttl --name SGCONF -j LOG --log-prefix "SG_CONF_BRUTFORCE: "
+$IPT -A INPUT -p tcp --destination-port 5555 -m recent --update --seconds 60 --hitcount 5 --rttl --name SGCONF -j DROP
 
 #####
 $IPT -A INPUT -m state --state INVALID -j DROP
