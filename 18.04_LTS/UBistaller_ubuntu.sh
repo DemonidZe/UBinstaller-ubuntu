@@ -146,8 +146,9 @@ $DIALOG --infobox "package installation in progress." 4 60
 echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debconf-set-selections
 echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
 #deps install
-apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php7.2-mbstring php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.2-curl ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json >> /tmp/ubstg.log
-a2enmod php7.2
+add-apt-repository -y ppa:ondrej/php >> /tmp/ubstg.log
+apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php-redis php7.1-bcmath php7.1-xml php7.1-zip php7.1-soap php7.1-mbstring php7.1 php7.1-cli php7.1-mysql php7.1-snmp libapache2-mod-php7.1 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.1-curl ipcalc php7.1-gd php7.1-xmlrpc php7.1-imap php7.1-json >> /tmp/ubstg.log
+a2enmod php7.1
 apachectl restart
 
 #add apache childs to sudoers
@@ -282,8 +283,8 @@ ln -fs  /usr/bin/php /usr/local/bin/php
 echo "INTERFACE=\"${LAN_IFACE}\"" >  /etc/default/softflowd
 echo "OPTIONS=\"-n ${SERVER_IP}:42111\"" >> /etc/default/softflowd
 #make htaccess works
-cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.2/cli/
-cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.2/apache2/
+cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.1/cli/
+cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.1/apache2/
 cp -f /tmp/ubinstaller/config/000-default.conf  /etc/apache2/sites-enabled/
 apachectl restart
 
