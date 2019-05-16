@@ -1,7 +1,6 @@
 #!/bin/bash
 apt -y install dialog
 DIALOG="dialog"
-DIALOG2="dialog"
 UBILLING_RELEASE_URL="http://ubilling.net.ua/"
 UBILLING_RELEASE_NAME="ub.tgz"
 DL_STG_URL="http://ubilling.net.ua/stg/"
@@ -90,6 +89,10 @@ WAN_IFACE="none"
 ;;
 esac
 
+$DIALOG --title "Setup Freeradius for MultiGen"   --yesno "Do you want to install Freeradius for MultiGen  presets?" 10 40
+FREERADIUS=$?
+clear
+
 LAN_IFACE=`cat /tmp/ubiface`
 MYSQL_PASSWD=`cat /tmp/ubmypas`
 SERVER_IP=`cat /tmp/ubip`
@@ -177,17 +180,17 @@ else
 echo "=== Error: stargazer sources are not available. Installation is aborted. ==="
 exit
 fi
-$DIALOG2 --infobox "Compiling Stargazer.." 4 60
+$DIALOG --infobox "Compiling Stargazer.." 4 60
 tar zxvf ${DL_STG_NAME} >> /tmp/ubstg.log
 cd ${DL_STG_RELEASE}/projects/stargazer/
 ./build >> /tmp/ubstg.log
-$DIALOG2 --infobox "Compiling Stargazer..." 4 60
+$DIALOG --infobox "Compiling Stargazer..." 4 60
 make install >> /tmp/ubstg.log
-$DIALOG2 --infobox "Compiling Stargazer....." 4 60
+$DIALOG --infobox "Compiling Stargazer....." 4 60
 cd ../sgconf && ./build && make && make install >> /tmp/ubstg.log
-$DIALOG2 --infobox "Compiling Stargazer......." 4 60
+$DIALOG --infobox "Compiling Stargazer......." 4 60
 cd ../sgconf_xml && ./build && make && make install >> /tmp/ubstg.log
-$DIALOG2 --infobox "Stargazer installed." 4 60
+$DIALOG --infobox "Stargazer installed." 4 60
 
 #updating stargazer config
 cp -f /tmp/ubinstaller/config/stargazer.conf /etc/stargazer/
@@ -203,7 +206,7 @@ sleep 2
 #updating admin password
 /usr/sbin/sgconf_xml -s localhost -p 5555 -a admin -w 123456 -r " <ChgAdmin Login=\"admin\" password=\"${STG_PASS}\" /> "
 killall stargazer
-$DIALOG2 --infobox "Ubilling download, unpacking and installation is in progress." 4 60
+$DIALOG --infobox "Ubilling download, unpacking and installation is in progress." 4 60
 
 #downloading and installing Ubilling
 cd /var/www/
@@ -217,10 +220,10 @@ else
 echo "=== Error: Ubilling release is not available. Installation is aborted. ==="
 exit
 fi
-tar zxvf ${UBILLING_RELEASE_NAME} >> /tmp/ubweb.log
+tar zxvf ${UBILLING_RELEASE_NAME} >> /tmp/ubstg.log
 chmod -R 777 content/ config/ multinet/ exports/ remote_nas.conf
 #apply dump
-cat /var/www/billing/docs/test_dump.sql | mysql -u root -p${MYSQL_PASSWD} stg
+cat /var/www/billing/docs/test_dump.sql | mysql -u root -p${MYSQL_PASSWD} stg >> /tmp/ubstg.log
 #mysql -u root -p${MYSQL_PASSWD} stg -e "SHOW TABLES"
 #updating passwords
 perl -e "s/mylogin/root/g" -pi ./config/mysql.ini
@@ -229,7 +232,7 @@ perl -e "s/mylogin/root/g" -pi ./userstats/config/mysql.ini
 perl -e "s/newpassword/${MYSQL_PASSWD}/g" -pi ./userstats/config/mysql.ini
 
 #hotfix 2.408 admin permissions trouble
-cat /tmp/ubinstaller/config/admin_rights_hotfix.sql | mysql -u root  -p stg --password=${MYSQL_PASSWD}
+cat /tmp/ubinstaller/config/admin_rights_hotfix.sql | mysql -u root  -p stg --password=${MYSQL_PASSWD} >> /tmp/ubstg.log
 perl -e "s/123456/${STG_PASS}/g" -pi ./config/billing.ini
 perl -e "s/123456/${STG_PASS}/g" -pi ./userstats/config/userstats.ini
 #updating linux specific things
@@ -285,6 +288,34 @@ chmod 777 /etc/stargazer/dn
 ln -fs  /usr/bin/php /usr/local/bin/php 
 echo "INTERFACE=\"${LAN_IFACE}\"" >  /etc/default/softflowd
 echo "OPTIONS=\"-n ${SERVER_IP}:42111\"" >> /etc/default/softflowd
+case $FREERADIUS in
+0)
+#if setup FreeRadius
+if [ ${ARCH} == 1804 ];
+then
+$DIALOG --infobox "Freeradius installation is in progress." 4 60
+apt -y install freeradius-common freeradius-mysql >> /tmp/ubstg.log
+cp -R /var/www/billing/docs/multigen/raddb3/* /etc/freeradius/ 
+sed -i "s/\/usr\/local\/lib\/freeradius-3.0.16/\/usr\/lib\/freeradius/" /etc/freeradius/radiusd.conf
+sed -i "s/\/usr\/local\/etc\/raddb/\/etc\/freeradius/" /etc/freeradius/dictionary
+mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/dump.sql >> /tmp/ubstg.log
+mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/radius3_fix.sql >> /tmp/ubstg.log
+sed -i "s/mysqlrootpassword/${MYSQL_PASSWD}/g" /etc/freeradius/sql.conf
+else
+$DIALOG --infobox "Freeradius installation is in progress." 4 60
+add-apt-repository -y ppa:freeradius/stable-3.0 >> /tmp/ubstg.log
+apt update >> /tmp/ubstg.log
+apt -y install freeradius-common freeradius-mysql >> /tmp/ubstg.log
+cp -R /var/www/billing/docs/multigen/raddb3/* /etc/freeradius/
+sed -i "s/\/usr\/local\/lib\/freeradius-3.0.16/\/usr\/lib\/freeradius/" /etc/freeradius/radiusd.conf
+sed -i "s/\/usr\/local\/etc\/raddb/\/etc\/freeradius/" /etc/freeradius/dictionary
+sed -i "s/\/usr\/local\/share/\/usr\/share/" /etc/freeradius/dictionary
+mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/dump.sql >> /tmp/ubstg.log
+mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/radius3_fix.sql >> /tmp/ubstg.log
+sed -i "s/mysqlrootpassword/${MYSQL_PASSWD}/g" /etc/freeradius/sql.conf
+fi
+;;
+esac
 #make htaccess works
 case $ARCH in
 1804)
@@ -307,6 +338,7 @@ chmod a+x /etc/ubapi.sh
 systemctl daemon-reload
 systemctl enable softflowd
 systemctl enable mysql
+systemctl enable freeradius
 systemctl enable isc-dhcp-server
 systemctl enable billing
 systemctl enable firewall
@@ -339,7 +371,7 @@ echo "no NAS setup required"
 ;;
 esac
 
-$DIALOG2 --title "Installation complete" --msgbox "Now you can access your web-interface by address http://${SERVER_IP}/ with login and password: admin/demo. Please reboot your server to check correct startup of all services" 15 50
+$DIALOG --title "Installation complete" --msgbox "Now you can access your web-interface by address http://${SERVER_IP}/ with login and password: admin/demo. Please reboot your server to check correct startup of all services" 15 50
 ;;
 1)
 echo "Installation has been aborted"
