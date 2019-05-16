@@ -1,5 +1,5 @@
 #!/bin/bash
-apt -y install dialog
+apt -y install dialog >> /tmp/ubstg.log
 DIALOG="dialog"
 UBILLING_RELEASE_URL="http://ubilling.net.ua/"
 UBILLING_RELEASE_NAME="ub.tgz"
