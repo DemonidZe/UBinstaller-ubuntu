@@ -187,9 +187,13 @@ cd ${DL_STG_RELEASE}/projects/stargazer/
 $DIALOG --infobox "Compiling Stargazer..." 4 60
 make install >> /tmp/ubstg.log
 $DIALOG --infobox "Compiling Stargazer....." 4 60
-cd ../sgconf && ./build && make && make install >> /tmp/ubstg.log
+cd ../sgconf && ./build >> /tmp/ubstg.log
+make >> /tmp/ubstg.log
+make install >> /tmp/ubstg.log
 $DIALOG --infobox "Compiling Stargazer......." 4 60
-cd ../sgconf_xml && ./build && make && make install >> /tmp/ubstg.log
+cd ../sgconf_xml && ./build >> /tmp/ubstg.log
+make >> /tmp/ubstg.log
+make install >> /tmp/ubstg.log
 $DIALOG --infobox "Stargazer installed." 4 60
 
 #updating stargazer config
