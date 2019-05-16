@@ -315,13 +315,13 @@ $DIALOG --infobox "Freeradius installation is in progress." 4 60
 add-apt-repository -y ppa:freeradius/stable-3.0 >> /tmp/ubstg.log
 apt update >> /tmp/ubstg.log
 apt -y install freeradius-common freeradius-mysql >> /tmp/ubstg.log
-cp -R /var/www/billing/docs/multigen/raddb3/* /etc/freeradius/
-sed -i "s/\/usr\/local\/lib\/freeradius-3.0.16/\/usr\/lib\/freeradius/" /etc/freeradius/radiusd.conf
-sed -i "s/\/usr\/local\/etc\/raddb/\/etc\/freeradius/" /etc/freeradius/dictionary
-sed -i "s/\/usr\/local\/share/\/usr\/share/" /etc/freeradius/dictionary
+cp -R /var/www/billing/docs/multigen/raddb3/* /etc/freeradius/3.0/
+sed -i "s/\/usr\/local\/lib\/freeradius-3.0.16/\/usr\/lib\/freeradius/" /etc/freeradius/3.0/radiusd.conf
+sed -i "s/\/usr\/local\/etc\/raddb/\/etc\/freeradius/" /etc/freeradius/3.0/dictionary
+sed -i "s/\/usr\/local\/share/\/usr\/share/" /etc/freeradius/3.0/dictionary
 mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/dump.sql >> /tmp/ubstg.log
 mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/radius3_fix.sql >> /tmp/ubstg.log
-sed -i "s/mysqlrootpassword/${MYSQL_PASSWD}/g" /etc/freeradius/sql.conf
+sed -i "s/mysqlrootpassword/${MYSQL_PASSWD}/g" /etc/freeradius/3.0/sql.conf
 fi
 ;;
 esac
