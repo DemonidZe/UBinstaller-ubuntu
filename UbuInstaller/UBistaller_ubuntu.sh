@@ -303,7 +303,7 @@ case $FREERADIUS in
 if [ ${ARCH} == 1804 ];
 then
 $DIALOG --infobox "Freeradius installation is in progress." 4 60
-apt -y install freeradius-common freeradius-mysql >> /tmp/ubstg.log
+apt -y install freeradius freeradius-mysql >> /tmp/ubstg.log
 cp -R /var/www/billing/docs/multigen/raddb3/* /etc/freeradius/3.0/ 
 sed -i "s/\/usr\/local\/lib\/freeradius-3.0.16/\/usr\/lib\/freeradius/" /etc/freeradius/3.0/radiusd.conf
 sed -i "s/\/usr\/local\/etc\/raddb/\/etc\/freeradius\/3.0/" /etc/freeradius/3.0/dictionary
@@ -316,7 +316,9 @@ else
 $DIALOG --infobox "Freeradius installation is in progress." 4 60
 add-apt-repository -y ppa:freeradius/stable-3.0 >> /tmp/ubstg.log
 apt update >> /tmp/ubstg.log
-apt -y install freeradius-common freeradius-mysql >> /tmp/ubstg.log
+apt -y install freeradius freeradius-mysql >> /tmp/ubstg.log
+/var/lib/dpkg/info/freeradius-mysql.postinst
+
 cp -R /var/www/billing/docs/multigen/raddb3/* /etc/freeradius/
 sed -i "s/\/usr\/local\/lib\/freeradius-3.0.16/\/usr\/lib\/freeradius/" /etc/freeradius/radiusd.conf
 sed -i "s/\/usr\/local\/etc\/raddb/\/etc\/freeradius/" /etc/freeradius/dictionary
