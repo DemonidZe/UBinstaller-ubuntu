@@ -321,11 +321,11 @@ sed -i "s/mysqlrootpassword/${MYSQL_PASSWD}/g" /etc/freeradius/3.0/sql.conf
 sed -i "s/MULTIGEN_ENABLED=0/MULTIGEN_ENABLED=1/g" /var/www/billing/config/alter.ini
 else
 $DIALOG --infobox "Freeradius installation is in progress." 4 60
+cp -f /tmp/ubinstaller/config/freeradius-mysql.postinst /var/lib/dpkg/info/
 add-apt-repository -y ppa:freeradius/stable-3.0 >> /tmp/ubstg.log
 apt update >> /tmp/ubstg.log
 apt -y install freeradius freeradius-mysql >> /tmp/ubstg.log
 /var/lib/dpkg/info/freeradius-mysql.postinst
-
 cp -R /var/www/billing/docs/multigen/raddb3/* /etc/freeradius/
 sed -i "s/\/usr\/local\/lib\/freeradius-3.0.16/\/usr\/lib\/freeradius/" /etc/freeradius/radiusd.conf
 sed -i "s/\/usr\/local\/etc\/raddb/\/etc\/freeradius/" /etc/freeradius/dictionary
