@@ -403,7 +403,7 @@ echo "no NAS setup required"
 ;;
 esac
 
-$DIALOG --title "Installation complete" --msgbox "Now you can access your web-interface by address http://${SERVER_IP}/ with login and password: admin/demo. Please reboot your server to check correct startup of all services" 15 50
+$DIALOG --title "Installation complete" --msgbox "Now you can access your web-interface by address http://server_ip/ with login and password: admin/demo. Please reboot your server to check correct startup of all services" 15 50
 ;;
 1)
 echo "Installation has been aborted"
