@@ -327,12 +327,11 @@ sed -i "s/group = freerad/#group = freerad/g" /etc/freeradius/3.0/radiusd.conf
 sed -i "/INCLUDE mods-enabled/a \$INCLUDE mysql.conf" /etc/freeradius/3.0/radiusd.conf
 else
 $DIALOG --infobox "Freeradius installation is in progress." 4 60
-cp -f /tmp/ubinstaller/config/freeradius-mysql.postinst /var/lib/dpkg/info/
 add-apt-repository -y ppa:freeradius/stable-3.0 >> /tmp/ubstg.log
 apt update >> /tmp/ubstg.log
 apt -y install freeradius-common freeradius-mysql >> /tmp/ubstg.log
 cp -f /tmp/ubinstaller/config/freeradius-mysql.postinst /var/lib/dpkg/info/
-dpkg --configure -a
+dpkg --configure -a >> /tmp/ubstg.log
 cp -R /var/www/billing/docs/multigen/raddb3/* /etc/freeradius/
 cp -f /tmp/ubinstaller/config/freerad.conf /etc/freeradius/radiusd.conf
 sed -i "s/raddbdir = \/etc\/freeradius\/3.0/raddbdir = \/etc\/freeradius/g" /etc/freeradius/radiusd.conf
