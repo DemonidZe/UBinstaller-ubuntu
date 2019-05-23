@@ -307,7 +307,7 @@ echo "OPTIONS=\"-n ${SERVER_IP}:42111\"" >> /etc/default/softflowd
 case $FREERADIUS in
 0)
 #if setup FreeRadius
-if [ ${ARCH} == 1804* ];
+if [[ ${ARCH} == 1804* ]];
 then
 $DIALOG --infobox "Freeradius installation is in progress." 4 60
 apt -y install freeradius-common freeradius-mysql >> /tmp/ubstg.log
