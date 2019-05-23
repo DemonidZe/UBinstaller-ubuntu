@@ -364,8 +364,8 @@ apachectl restart
 
 #installing auto update script
 cp -f /tmp/ubinstaller/config/autoubupdate.sh /var/www/
-cp -f /tmp/ubinstaller/config/ubapi /etc/ubapi.sh
-chmod a+x /etc/ubapi.sh
+cp -f /tmp/ubinstaller/config/ubapi /bin/
+chmod a+x /bin/ubapi
 #updating systemctl
 systemctl daemon-reload
 systemctl enable softflowd
