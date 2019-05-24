@@ -319,12 +319,6 @@ mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/dump.sql >>
 mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/radius3_fix.sql >> /tmp/ubstg.log
 sed -i "s/mysqlrootpassword/${MYSQL_PASSWD}/g" /etc/freeradius/3.0/sql.conf
 sed -i "s/MULTIGEN_ENABLED=0/MULTIGEN_ENABLED=1/g" /var/www/billing/config/alter.ini
-sed -i "s/proxy_requests  = yes/#proxy_requests = yes/g" /etc/freeradius/3.0/radiusd.conf
-sed -i 's/\$INCLUDE clients.conf/\#$INCLUDE clients.conf/g' /etc/freeradius/3.0/radiusd.conf
-sed -i 's/\$INCLUDE proxy.conf/\#$INCLUDE proxy.conf/g' /etc/freeradius/3.0/radiusd.conf
-sed -i "s/user = freerad/#user = freerad/g" /etc/freeradius/3.0/radiusd.conf
-sed -i "s/group = freerad/#group = freerad/g" /etc/freeradius/3.0/radiusd.conf
-sed -i "/INCLUDE mods-enabled/a \$INCLUDE mysql.conf" /etc/freeradius/3.0/radiusd.conf
 else
 $DIALOG --infobox "Freeradius installation is in progress." 4 60
 add-apt-repository -y ppa:freeradius/stable-3.0 >> /tmp/ubstg.log
