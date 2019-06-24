@@ -379,6 +379,7 @@ cp -f /tmp/ubinstaller/config/firewall /etc/firewall.sh
 chmod a+x /etc/firewall.sh
 cp -f /tmp/ubinstaller/config/shaper.sh /etc/shaper.sh
 chmod a+x /etc/shaper.sh
+cp -f /tmp/ubinstaller/config/sysctl.preconf /etc/sysctl.conf
 sed -i "s/INTERNAL_IFACE/${LAN_IFACE}/g" /etc/stargazer/config.ini
 sed -i "s/EXTERNAL_IFACE/${WAN_IFACE}/g" /etc/stargazer/config.ini
 #update settings in firewall sample
