@@ -20,7 +20,7 @@ PWD="/bin/pwd"
 
 
 # path to your apache data
-APACHE_DATA_PATH="/var/www/${APVER_VAR}/data/"
+APACHE_DATA_PATH="/var/www/"
 
 # ubilling path
 UBILLING_PATH="./billing/"
