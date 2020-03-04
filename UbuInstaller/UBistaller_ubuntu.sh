@@ -9,9 +9,8 @@ DL_STG_RELEASE="stg-2.409-rc2"
 $DIALOG --title "Ubilling installation" --msgbox "This wizard helps you to install Stargazer and Ubilling of the latest stable versions to CLEAN (!) Ubuntu 16.04 or 18.04 distribution" 10 40
 clear
 $DIALOG --menu "Choose version" 16 50 8 \
-           1804 "Ubuntu 18.04 amd64 + php 7.0"\
-           1804_71 "Ubuntu 18.04 amd64 + php7.1"\
-           1604 "Ubuntu 16.04 amd64 + php 7.0"\
+           1804 "Ubuntu 18.04 amd64"\
+           1604 "Ubuntu 16.04 amd64"\
         2> /tmp/ubarch
 clear
 #configuring stargazer release
@@ -150,9 +149,9 @@ echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} 
 case $ARCH in
 1804)
 #ubuntu 18.04  x64 Release
-add-apt-repository -y ppa:ondrej/php >> /tmp/ubstg.log
-apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php-redis php7.0-bcmath php7.0-xml php7.0-zip php7.0-soap php7.0-mbstring php7.0 php7.0-cli php7.0-mysql php7.0-snmp libapache2-mod-php7.0 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.0-curl ipcalc php7.0-gd php7.0-xmlrpc php7.0-imap php7.0-json >> /tmp/ubstg.log
-a2enmod php7.0
+#add-apt-repository -y ppa:ondrej/php >> /tmp/ubstg.log
+apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php-redis php7.2-bcmath php7.2-xml php7.2-zip php7.2-soap php7.2-mbstring php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.2-curl ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json >> /tmp/ubstg.log
+a2enmod php7.2
 ;;
 1804_71)
 #ubuntu 18.04 php7.1 x64 Release
@@ -341,8 +340,8 @@ esac
 #make htaccess works
 case $ARCH in
 1804)
-cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.0/cli/
-cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.0/apache2/
+cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.2/cli/
+cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.2/apache2/
 ;;
 1804_71)
 cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.1/cli/
