@@ -316,7 +316,7 @@ sed -i "s/\/usr\/local\/etc\/raddb/\/etc\/freeradius\/3.0/" /etc/freeradius/3.0/
 sed -i "s/\/usr\/local\/share/\/usr\/share/" /etc/freeradius/3.0/dictionary
 mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/dump.sql >> /tmp/ubstg.log
 mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/radius3_fix.sql >> /tmp/ubstg.log
-sed -i "s/mysqlrootpassword/${MYSQL_PASSWD}/g" /etc/freeradius/3.0/sql.conf
+sed -i "s/yourmysqlpassword/${MYSQL_PASSWD}/g" /etc/freeradius/3.0/sql.conf
 sed -i "s/MULTIGEN_ENABLED=0/MULTIGEN_ENABLED=1/g" /var/www/billing/config/alter.ini
 else
 $DIALOG --infobox "Freeradius installation is in progress." 4 60
@@ -332,7 +332,7 @@ sed -i "s/\/usr\/local\/etc\/raddb/\/etc\/freeradius/" /etc/freeradius/dictionar
 sed -i "s/\/usr\/local\/share/\/usr\/share/" /etc/freeradius/dictionary
 mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/dump.sql >> /tmp/ubstg.log
 mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/radius3_fix.sql >> /tmp/ubstg.log
-sed -i "s/mysqlrootpassword/${MYSQL_PASSWD}/g" /etc/freeradius/sql.conf
+sed -i "s/yourmysqlpassword/${MYSQL_PASSWD}/g" /etc/freeradius/sql.conf
 sed -i "s/MULTIGEN_ENABLED=0/MULTIGEN_ENABLED=1/g" /var/www/billing/config/alter.ini
 fi
 ;;
