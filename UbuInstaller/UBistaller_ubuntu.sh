@@ -150,18 +150,18 @@ case $ARCH in
 1804)
 #ubuntu 18.04  x64 Release
 #add-apt-repository -y ppa:ondrej/php >> /tmp/ubstg.log
-apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php-redis php7.2-bcmath php7.2-xml php7.2-zip php7.2-soap php7.2-mbstring php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.2-curl ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json >> /tmp/ubstg.log
+apt -y install expect mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php-redis php7.2-bcmath php7.2-xml php7.2-zip php7.2-soap php7.2-mbstring php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.2-curl ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json >> /tmp/ubstg.log
 a2enmod php7.2
 ;;
 1804_71)
 #ubuntu 18.04 php7.1 x64 Release
 add-apt-repository -y ppa:ondrej/php >> /tmp/ubstg.log
-apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php-redis php7.1-bcmath php7.1-xml php7.1-zip php7.1-soap php7.1-mbstring php7.1 php7.1-cli php7.1-mysql php7.1-snmp libapache2-mod-php7.1 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.1-curl ipcalc php7.1-gd php7.1-xmlrpc php7.1-imap php7.1-json >> /tmp/ubstg.log
+apt -y install expect mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php-redis php7.1-bcmath php7.1-xml php7.1-zip php7.1-soap php7.1-mbstring php7.1 php7.1-cli php7.1-mysql php7.1-snmp libapache2-mod-php7.1 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.1-curl ipcalc php7.1-gd php7.1-xmlrpc php7.1-imap php7.1-json >> /tmp/ubstg.log
 a2enmod php7.1
 ;;
 1604)
 #ubuntu 16.04  x64 Release
-apt -y install mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php-redis php7.0-bcmath php7.0-xml php7.0-zip php7.0-soap php7.0-mbstring php7.0 php7.0-cli php7.0-mysql php7.0-snmp libapache2-mod-php7.0 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.0-curl ipcalc php7.0-gd php7.0-xmlrpc php7.0-imap php7.0-json >> /tmp/ubstg.log
+apt -y install expect mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php-redis php7.0-bcmath php7.0-xml php7.0-zip php7.0-soap php7.0-mbstring php7.0 php7.0-cli php7.0-mysql php7.0-snmp libapache2-mod-php7.0 isc-dhcp-server build-essential bind9 softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.0-curl ipcalc php7.0-gd php7.0-xmlrpc php7.0-imap php7.0-json >> /tmp/ubstg.log
 a2enmod php7.0
 ;;
 esac
@@ -256,6 +256,8 @@ sed -i "s/\/usr\/bin\/top -b/\/usr\/bin\/top -b -n 1/g" ./config/billing.ini
 sed -i "s/\/usr\/bin\/grep/\/bin\/grep/g" ./config/billing.ini
 sed -i "s/\/usr\/local\/etc\/rc.d\/isc-dhcpd/\/etc\/init.d\/isc-dhcp-server/g" ./config/billing.ini
 sed -i "s/\/sbin\/ping/\/bin\/ping/g" ./config/billing.ini
+sed -i "s/\/usr\/local\/bin\/wget/\/usr\/bin\/wget/g" ./config/billing.ini
+sed -i "s/\/usr\/local\/bin\/expect/\/usr\/bin\/expect/g" ./config/billing.ini
 sed -i "s/\/var\/log\/messages/\/var\/log\/dhcpd.log/g" ./config/alter.ini
 sed -i "s/\/usr\/local\/sbin\/arping/\/usr\/sbin\/arping/g" ./config/alter.ini
 sed -i "s/rl0/${LAN_IFACE}/g" ./config/alter.ini
@@ -264,6 +266,7 @@ sed -i "s/\/usr\/local\/bin\/snmpset/\/usr\/bin\/snmpset/g" ./config/alter.ini
 sed -i "s/\/usr\/local\/bin\/mysqldump/\/usr\/bin\/mysqldump/g" ./config/alter.ini
 sed -i "s/\/usr\/local\/bin\/mysql/\/usr\/bin\/mysql/g" ./config/alter.ini
 sed -i "s/\/usr\/local\/bin\/nmap/\/usr\/bin\/nmap/g" ./config/alter.ini
+sed -i "s/\/usr\/local\/bin\/radclient/\/usr\/bin\/radclient/g" ./config/alter.ini
 #setting up dhcpd
 MASK=`ipcalc $LAN_NETW $LAN_CIDR | grep Netmask | awk {'print $2'}`
 ln -fs /var/www/billing/multinet/ /etc/dhcp/multinet
@@ -318,6 +321,7 @@ mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/dump.sql >>
 mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/radius3_fix.sql >> /tmp/ubstg.log
 sed -i "s/yourmysqlpassword/${MYSQL_PASSWD}/g" /etc/freeradius/3.0/sql.conf
 sed -i "s/MULTIGEN_ENABLED=0/MULTIGEN_ENABLED=1/g" /var/www/billing/config/alter.ini
+sed -i "s/;MULTIGEN_RADCLIENT/MULTIGEN_RADCLIENT/g" /var/www/billing/config/alter.ini
 else
 $DIALOG --infobox "Freeradius installation is in progress." 4 60
 add-apt-repository -y ppa:freeradius/stable-3.0 >> /tmp/ubstg.log
@@ -334,6 +338,7 @@ mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/dump.sql >>
 mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/radius3_fix.sql >> /tmp/ubstg.log
 sed -i "s/yourmysqlpassword/${MYSQL_PASSWD}/g" /etc/freeradius/sql.conf
 sed -i "s/MULTIGEN_ENABLED=0/MULTIGEN_ENABLED=1/g" /var/www/billing/config/alter.ini
+sed -i "s/;MULTIGEN_RADCLIENT/MULTIGEN_RADCLIENT/g" /var/www/billing/config/alter.ini
 fi
 ;;
 esac
