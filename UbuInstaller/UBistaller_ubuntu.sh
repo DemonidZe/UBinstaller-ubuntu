@@ -296,7 +296,7 @@ cp -f /tmp/ubinstaller/config/firewall.service /lib/systemd/system
 ########
 sed -i "s/newpassword/${MYSQL_PASSWD}/g" /etc/stargazer/config.ini
 sed -i "s/newpassword/${MYSQL_PASSWD}/g" /etc/stargazer/dnswitch.php
-sed -i "s/EXTERNAL_IFACE/${WAN_IFACE}/g" /etc/stargazer/dnswitch.php
+sed -i "s/INTERNAL_IFACE/${LAN_IFACE}/g" /etc/stargazer/dnswitch.php
 
 
 #
