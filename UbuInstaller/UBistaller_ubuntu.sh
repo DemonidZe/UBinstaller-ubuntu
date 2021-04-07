@@ -6,7 +6,7 @@ UBILLING_RELEASE_NAME="ub.tgz"
 DL_STG_URL="http://ubilling.net.ua/stg/"
 DL_STG_NAME="stg-2.409-rc2.tar.gz"
 DL_STG_RELEASE="stg-2.409-rc2"
-$DIALOG --title "Ubilling installation" --msgbox "This wizard helps you to install Stargazer and Ubilling of the latest stable versions to CLEAN (!) Ubuntu 16.04 or 18.04 distribution" 10 40
+$DIALOG --title "Ubilling installation" --msgbox "This wizard helps you to install Stargazer and Ubilling of the latest stable versions to CLEAN (!) Ubuntu 16.04 or 18.04 or 20.04 distribution" 10 40
 clear
 $DIALOG --menu "Choose version" 16 50 8 \
            2004 "Ubuntu 20.04 amd64"\
