@@ -143,14 +143,14 @@ DL_STG_RELEASE="stg-2.409-rc5"
 ;;
 esac
 $DIALOG --infobox "package installation in progress." 4 60
-#setting mysql passwords
-echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debconf-set-selections
-echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
 #deps install
 case $ARCH in
 1804)
 #ubuntu 18.04  x64 Release
 #add-apt-repository -y ppa:ondrej/php >> /tmp/ubstg.log
+#setting mysql passwords
+echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debconf-set-selections
+echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
 apt -y install expect mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php-redis php7.2-bcmath php7.2-xml php7.2-zip php7.2-soap php7.2-mbstring php7.2 php7.2-cli php7.2-mysql php7.2-snmp libapache2-mod-php7.2 isc-dhcp-server build-essential softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.2-curl ipcalc php7.2-gd php7.2-xmlrpc php7.2-imap php7.2-json >> /tmp/ubstg.log
 a2enmod php7.2
 ;;
@@ -163,6 +163,9 @@ a2enmod php
 ;;
 1604)
 #ubuntu 16.04  x64 Release
+#setting mysql passwords
+echo mysql-server-5.7 mysql-server/root_password password ${MYSQL_PASSWD} | debconf-set-selections
+echo mysql-server-5.7 mysql-server/root_password_again password ${MYSQL_PASSWD} | debconf-set-selections
 apt -y install expect mysql-server-5.7 mysql-client-core-5.7 libmysqlclient20 libmysqlclient-dev apache2 expat libexpat1-dev php-redis php7.0-bcmath php7.0-xml php7.0-zip php7.0-soap php7.0-mbstring php7.0 php7.0-cli php7.0-mysql php7.0-snmp libapache2-mod-php7.0 isc-dhcp-server build-essential softflowd arping snmp snmp-mibs-downloader nmap ipset automake libtool graphviz elinks php7.0-curl ipcalc php7.0-gd php7.0-xmlrpc php7.0-imap php7.0-json >> /tmp/ubstg.log
 a2enmod php7.0
 ;;
@@ -312,20 +315,8 @@ echo "OPTIONS=\"-n ${SERVER_IP}:42111\"" >> /etc/default/softflowd
 case $FREERADIUS in
 0)
 #if setup FreeRadius
-if [[ ${ARCH} == 1804* ]];
+if [[ ${ARCH} == 1604* ]];
 then
-$DIALOG --infobox "Freeradius installation is in progress." 4 60
-apt -y install freeradius-common freeradius-mysql >> /tmp/ubstg.log
-cp -R /var/www/billing/docs/multigen/raddb3/* /etc/freeradius/3.0/ 
-cp -f /tmp/ubinstaller/config/freerad.conf /etc/freeradius/3.0/radiusd.conf
-sed -i "s/\/usr\/local\/etc\/raddb/\/etc\/freeradius\/3.0/" /etc/freeradius/3.0/dictionary
-sed -i "s/\/usr\/local\/share/\/usr\/share/" /etc/freeradius/3.0/dictionary
-mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/dump.sql >> /tmp/ubstg.log
-mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/radius3_fix.sql >> /tmp/ubstg.log
-sed -i "s/yourmysqlpassword/${MYSQL_PASSWD}/g" /etc/freeradius/3.0/sql.conf
-sed -i "s/MULTIGEN_ENABLED=0/MULTIGEN_ENABLED=1/g" /var/www/billing/config/alter.ini
-sed -i "s/;MULTIGEN_RADCLIENT/MULTIGEN_RADCLIENT/g" /var/www/billing/config/alter.ini
-else
 $DIALOG --infobox "Freeradius installation is in progress." 4 60
 add-apt-repository -y ppa:freeradius/stable-3.0 >> /tmp/ubstg.log
 apt update >> /tmp/ubstg.log
@@ -342,6 +333,18 @@ mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/radius3_fix
 sed -i "s/yourmysqlpassword/${MYSQL_PASSWD}/g" /etc/freeradius/sql.conf
 sed -i "s/MULTIGEN_ENABLED=0/MULTIGEN_ENABLED=1/g" /var/www/billing/config/alter.ini
 sed -i "s/;MULTIGEN_RADCLIENT/MULTIGEN_RADCLIENT/g" /var/www/billing/config/alter.ini
+else
+$DIALOG --infobox "Freeradius installation is in progress." 4 60
+apt -y install freeradius-common freeradius-mysql >> /tmp/ubstg.log
+cp -R /var/www/billing/docs/multigen/raddb3/* /etc/freeradius/3.0/ 
+cp -f /tmp/ubinstaller/config/freerad.conf /etc/freeradius/3.0/radiusd.conf
+sed -i "s/\/usr\/local\/etc\/raddb/\/etc\/freeradius\/3.0/" /etc/freeradius/3.0/dictionary
+sed -i "s/\/usr\/local\/share/\/usr\/share/" /etc/freeradius/3.0/dictionary
+mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/dump.sql >> /tmp/ubstg.log
+mysql -u root -p${MYSQL_PASSWD} stg < /var/www/billing/docs/multigen/radius3_fix.sql >> /tmp/ubstg.log
+sed -i "s/yourmysqlpassword/${MYSQL_PASSWD}/g" /etc/freeradius/3.0/sql.conf
+sed -i "s/MULTIGEN_ENABLED=0/MULTIGEN_ENABLED=1/g" /var/www/billing/config/alter.ini
+sed -i "s/;MULTIGEN_RADCLIENT/MULTIGEN_RADCLIENT/g" /var/www/billing/config/alter.ini
 fi
 ;;
 esac
@@ -352,8 +355,8 @@ cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.2/cli/
 cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.2/apache2/
 ;;
 2004)
-cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.1/cli/
-cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.1/apache2/
+cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.4/cli/
+cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.4/apache2/
 ;;
 1604)
 cp -f /tmp/ubinstaller/config/php.ini /etc/php/7.0/cli/
