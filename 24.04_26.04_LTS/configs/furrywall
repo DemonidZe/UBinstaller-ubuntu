@@ -1,0 +1,78 @@
+#!/usr/bin/bash
+
+############ CONFIGURATION SECTION ############
+LAN_IF="INTERNAL_INTERFACE"
+WAN_IF="EXTERNAL_INTERFACE"
+LAN_NET="INTERNAL_NETWORK"
+LAN_CIDR="INTERNAL_CIDR"
+BANDWIDTH="1024mbit"
+
+###############################################
+
+IPT="/sbin/iptables"
+IPS="/sbin/ipset"
+TC="/sbin/tc"
+
+WAN_IP=`ip addr show ${WAN_IF} | grep inet' '| awk {'print $2'} | cut -f 1 -d "/" | sed -n '1p' | xargs`
+
+/sbin/modprobe nf_conntrack
+/sbin/modprobe nf_conntrack_ftp
+/sbin/modprobe nf_nat_ftp
+
+#force IP Forwarding
+/usr/sbin/sysctl -w net.ipv4.ip_forward=1
+
+$IPT -F
+$IPT -X
+$IPS -N FORW iphash
+$IPS -N DISCON iphash
+$IPT -P INPUT ACCEPT
+$IPT -P OUTPUT ACCEPT
+$IPT -P FORWARD DROP
+
+
+$IPT -A INPUT -m state --state INVALID -j DROP
+
+$IPT -A FORWARD -i lo -j ACCEPT
+$IPT -A FORWARD -m state --state INVALID -j DROP
+$IPT -A FORWARD -m set --match-set FORW src,dst -j ACCEPT
+$IPT -A FORWARD -m set --match-set FORW dst,src -j ACCEPT
+$IPT -A FORWARD -m set --match-set DISCON src --dst ${WAN_IP} -j ACCEPT
+$IPT -A FORWARD -m set --match-set DISCON dst --src ${WAN_IP} -j ACCEPT
+
+#UHW
+#$IPT -t nat -A PREROUTING --src 172.31.0.0/24 --dst 0.0.0.0/0 -p tcp --dport 80 -j DNAT --to-destination 172.31.0.1:80
+
+#NAT
+$IPT -t nat -A POSTROUTING -s ${LAN_NET}/${LAN_CIDR} -o ${WAN_IF} -j SNAT --to-source ${WAN_IP}
+
+#Shaper
+$IPT -t mangle --flush
+
+$TC qdisc add dev ${LAN_IF} root handle 1: htb
+$TC class add dev ${LAN_IF} parent 1: classid 1:1 htb rate ${BANDWIDTH} ceil ${BANDWIDTH}
+
+$TC qdisc add dev ${WAN_IF} root handle 1: htb
+$TC class add dev ${WAN_IF} parent 1: classid 1:1 htb rate ${BANDWIDTH} ceil ${BANDWIDTH}
+
+#                              /
+#                   __       //
+#                   -\= \=\ //
+#                 --=_\=---//=--
+#               -_==/  \/ //\/--
+#                ==/   /O   O\==--
+#   _ _ _ _     /_/    \  ]  /--
+#  /\ ( (- \    /       ] ] ]==-
+# (\ _\_\_\-\__/     \  (,_,)--
+#(\_/                 \     \-
+#\/      /       (   ( \  ] /)
+#/      (         \   \_ \./ )
+#(       \         \      )  \
+#(       /\_ _ _ _ /---/ /\_  \
+# \     / \     / ____/ /   \  \
+#  (   /   )   / /  /__ )   (  )
+#  (  )   / __/ '---`       / /
+#  \  /   \ \             _/ /
+#  ] ]     )_\_         /__\/
+#  /_\     ]___\
+# (___)

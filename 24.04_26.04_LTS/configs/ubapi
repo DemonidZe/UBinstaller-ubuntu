@@ -1,0 +1,17 @@
+#!/bin/sh
+
+#= Change this to your real Ubilling serial ==
+UBSERIAL=UB000000000000000000000000000000000
+#=============================================
+if [ $# -ne 1 ]
+then
+  echo "Usage: /bin/ubapi \"action\""
+  echo "Example: /bin/ubapi \"backupdb\" or /bin/ubapi \"swping\""
+  exit
+fi
+
+ACTION=$1
+if [ "$ACTION" = "autoupdatehook" ]; then
+  perl -e "s/Debian GNU\/Linux 13 \(trixie\)/Ubuntu/g" -pi /var/www/html/billing/api/libs/api.crontabeditor.php 2>/dev/null
+fi
+/usr/bin/curl -o /dev/null "http://127.0.0.1/billing/?module=remoteapi&key=${UBSERIAL}&action=${ACTION}"

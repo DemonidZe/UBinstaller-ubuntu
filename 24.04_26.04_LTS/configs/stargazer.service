@@ -1,0 +1,14 @@
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Description=Stargazer
+After=network.target mariadb.service
+Requires=mariadb.service
+[Service]
+Type=forking
+User=root
+Group=root
+ExecStart=/usr/sbin/stargazer
+WorkingDirectory=/
+PIDFile=/var/run/stargazer.pid

@@ -1,0 +1,6 @@
+  /var/www/html/billing/multinet/ r,
+  /var/www/html/billing/multinet/** r,
+  /var/www/html/billing/multinet/dhcpd{,6}.conf r,
+  /usr/local/etc/multinet/ r,
+  /usr/local/etc/multinet/** r,
+  /usr/local/etc/multinet/dhcpd{,6}.conf r,
