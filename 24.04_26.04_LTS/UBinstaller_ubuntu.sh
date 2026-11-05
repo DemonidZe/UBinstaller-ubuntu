@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 
 export LC_ALL=C
+export CFLAGS="-std=gnu17"
 
 DIALOG="dialog"
 FETCH="/usr/bin/wget"
@@ -263,7 +264,7 @@ $DIALOG --infobox "Installing misc software" 4 60
 apt install -y build-essential >> ${LOG_FILE}  2>&1
 apt install -y bind9 >> ${LOG_FILE}  2>&1
 DEBIAN_FRONTEND=noninteractive apt install -y softflowd >> ${LOG_FILE}  2>&1
-apt install -y libxmlrpc-c++8-dev >> ${LOG_FILE}  2>&1
+apt install -y libxmlrpc-c++8-dev >> ${LOG_FILE}  2>&1 || apt install -y libxmlrpc-c++9-dev >> ${LOG_FILE}  2>&1
 apt install -y ipset >> ${LOG_FILE}  2>&1
 $DIALOG --infobox "Installing memory caching servers" 4 60
 apt install -y memcached >> ${LOG_FILE}  2>&1
@@ -362,16 +363,23 @@ ${APACHE_INIT_SCRIPT} stop
 
 cd /usr/local/ubinstaller/configs/
 cp -R ${APACHE_CONFIG_PRESET_NAME} ${APACHE_CONFIG_DIR}${APACHE_CONFIG_NAME}
+mkdir -p /etc/systemd/system/apache2.service.d
+cp -R apache2-systemd.conf /etc/systemd/system/apache2.service.d/ubilling.conf
+systemctl daemon-reload
 cp -R ${PHP_CONFIG_PRESET} ${PHP_CONFIG_DIR}php.ini
 cp -R ${PHP_CONFIG_PRESET} ${PHP_CLI_CONFIG_DIR}php.ini
 cp -R stargazer.conf /etc/stargazer/
 
 cp -R sudoers_preset /etc/sudoers.d/ubilling
+chmod 0440 /etc/sudoers.d/ubilling
 
 cp -R inside.html ${APACHE_DATA_PATH}/index.html
 
 service mariadb stop
 cp -R 50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
+if [ -d /var/lib/mariadb ] && [ ! -d /var/lib/mysql ]; then
+    perl -e "s/\/var\/lib\/mysql/\/var\/lib\/mariadb/g" -pi /etc/mysql/mariadb.conf.d/50-server.cnf
+fi
 service mariadb start
 
 ${APACHE_INIT_SCRIPT} start
@@ -543,7 +551,7 @@ perl -e "s/yourmysqlpassword/${MYSQL_PASSWD}/g" -pi /etc/freeradius/3.0/sql.conf
 
 $DIALOG --infobox "Installing Sphinx search service" 4 60
 cd /opt
-wget http://sphinxsearch.com/files/sphinx-3.4.1-efbcc65-linux-amd64.tar.gz >> ${LOG_FILE}  2>&1
+wget -T 10 -t 2 http://sphinxsearch.com/files/sphinx-3.4.1-efbcc65-linux-amd64.tar.gz >> ${LOG_FILE}  2>&1 || wget -O sphinx-3.4.1-efbcc65-linux-amd64.tar.gz "https://web.archive.org/web/20241002215257id_/http://sphinxsearch.com/files/sphinx-3.4.1-efbcc65-linux-amd64.tar.gz" >> ${LOG_FILE}  2>&1
 tar zxvf sphinx-3.4.1-efbcc65-linux-amd64.tar.gz >> ${LOG_FILE}  2>&1
 mv sphinx-3.4.1 sphinx
 cd sphinx
@@ -582,6 +590,9 @@ systemctl enable furrywall.service >> ${LOG_FILE}  2>&1
 cp -R configs/softflowd.preconf /etc/softflowd/default.conf
 perl -e "s/INTERNAL_INTERFACE/${LAN_IFACE}/g" -pi /etc/softflowd/default.conf
 echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+mkdir -p /etc/sysctl.d
+cp -R configs/sysctl.preconf /etc/sysctl.d/99-ubilling.conf
+echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/99-ubilling.conf
 
 cd ${APACHE_DATA_PATH}billing/
 cp -f docs/presets/Debian/etc/stargazer/* /etc/stargazer/
@@ -624,11 +635,17 @@ ln -fs /var/www/html/billing/multinet /usr/local/etc/multinet
 ln -fs ${APACHE_DATA_PATH}billing/remote_nas.conf /etc/stargazer/remote_nas.conf
 
 $DIALOG --infobox "Configuring NTP sync" 4 60
-if ! grep -q "ntp.ubilling.net.ua" /etc/systemd/timesyncd.conf; then
-    echo "NTP=ntp.ubilling.net.ua" >> /etc/systemd/timesyncd.conf
+if [ -f /etc/systemd/timesyncd.conf ]; then
+    if ! grep -q "ntp.ubilling.net.ua" /etc/systemd/timesyncd.conf; then
+        echo "NTP=ntp.ubilling.net.ua" >> /etc/systemd/timesyncd.conf
+    fi
+    systemctl enable systemd-timesyncd >> ${LOG_FILE}  2>&1
+    systemctl restart systemd-timesyncd >> ${LOG_FILE}  2>&1
+elif [ -d /etc/chrony/sources.d ]; then
+    echo "pool ntp.ubilling.net.ua iburst" > /etc/chrony/sources.d/ubilling.sources
+    systemctl enable chrony >> ${LOG_FILE}  2>&1
+    systemctl restart chrony >> ${LOG_FILE}  2>&1
 fi
-systemctl enable systemd-timesyncd >> ${LOG_FILE}  2>&1
-systemctl restart systemd-timesyncd >> ${LOG_FILE}  2>&1
 
 cd ${APACHE_DATA_PATH}billing/
 if [ -f ./docs/presets/Debian/ubautoupgrade.sh ];
